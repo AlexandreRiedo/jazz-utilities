@@ -3,6 +3,6 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-national-park: var(--font-national-park);
+  --font-neobrutalist: var(--font-neobrutalist);
 }

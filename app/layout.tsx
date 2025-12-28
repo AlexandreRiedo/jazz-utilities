@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { National_Park, Bricolage_Grotesque, Alan_Sans, Fredoka} from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const nationalPark = National_Park({
+  variable: "--font-national-park",
   subsets: ["latin"],
+  fallback: ['system-ui', 'arial'],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const neoBrutalist = Fredoka({
+  variable: "--font-neobrutalist",
   subsets: ["latin"],
+  fallback: ['system-ui', 'arial'],
 });
 
 export const metadata: Metadata = {
@@ -25,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${nationalPark.variable} ${neoBrutalist.variable} antialiased`}
       >
         {children}
       </body>
