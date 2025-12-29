@@ -77,17 +77,17 @@ export default function Home() {
 
   return (
     <>
-      <main className="grid grid-rows-[70fr_30fr] min-h-screen bg-rose-200 bg-[url('/svg/grid.svg')] bg-repeat bg-size-[80px_80px]">
+      <main className="grid grid-rows-[1fr_auto] h-screen">
         {/* Chord Display */}
-        <div className="relative self-end flex flex-col justify-center">
+        <section className="mt-8 relative self-end flex flex-col justify-center">
           {/* Decoration */}
-          <div className="absolute w-60 h-20 bg-red-400 bottom-[40%]"></div>
-          <div className="absolute w-60 h-20 bg-pink-400 right-0 bottom-[80%]"></div>
-          <div className="absolute w-20 h-30 bg-orange-400 left-[0%] bottom-[70%]"></div>
-          <div className="absolute w-80 h-20 bg-lime-300 right-[0%] bottom-40"></div>
+          <div className="absolute w-60 h-20 bg-red-400 bottom-[20%]"></div>
+          <div className="absolute w-60 h-20 bg-pink-400 right-0 bottom-[60%]"></div>
+          <div className="absolute w-20 h-30 bg-orange-400 left-[0%] bottom-[50%]"></div>
+          <div className="absolute w-80 h-20 bg-lime-300 right-[0%] bottom-20"></div>
 
           {/* Main Chord Card Display */}
-          <section className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 p-4 min-h-96 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]">
+          <div className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 p-4 min-h-96 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]">
             {chordList.map((chord, index) => {
               return (
                 <output key={uuidv4()} className="text-center font-neobrutalist font-[450] text-8xl">
@@ -96,18 +96,27 @@ export default function Home() {
                   {chord}</output>
               )
             })}
-          </section>
-
-          {/* Button Area */}
-          <div className="relative flex justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]">
-            <button onClick={mainRandomGenerate} className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
-            hover:bg-[#d61c3b] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Randomize Chords!</button>
           </div>
-        </div>
+        </section>
 
         {/* Form Options */}
-        <div className="">
-        </div>
+        <section className="">
+          {/* Randomize Button */}
+          <div className="relative flex justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]">
+            <button onClick={mainRandomGenerate} className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+            hover:bg-[#ffa2b1] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Randomize Chords!</button>
+          </div>
+          {/* Edit Metronome */}
+          <div className="relative flex justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[#ff95c5]">
+            <button className="px-8 py-2 bg-[#ff389c] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+            hover:bg-[#ff95ca] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Edit Metronome</button>
+          </div>
+          {/* Options */}
+          <div className="relative flex justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[hsl(30,100%,89%)]">
+            <button className="px-8 py-2 bg-[#ffc053] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+            hover:bg-[hsl(30,100%,89%)] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Options</button>
+          </div>
+        </section>
       </main>
     </>
   );
