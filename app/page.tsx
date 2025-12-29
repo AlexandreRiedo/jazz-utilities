@@ -1,5 +1,5 @@
 "use client"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Chord } from "tonal";
 import { Scale } from "tonal";
 import { v4 as uuidv4 } from 'uuid';
@@ -7,6 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 export default function Home() {
   const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
   const [numberList, setNumberList] = useState(["maj7", "13"]);
+
+  // const [numberOfNotes, setNumberOfNotes] = useState(2);
+  const [formOptions, setFormOptions] = useState({ numberOfNotes: 2 })
 
   function generateRandomTargetTone(chordQuality: string) {
     // The form to select target tones will return a primitive extension list as shown below,
@@ -19,6 +22,7 @@ export default function Home() {
 
       case "":
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "4");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "6");
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
@@ -50,15 +54,14 @@ export default function Home() {
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
     }
   }
-  function mainRandomGenerate() {
+  function mainRandomGenerate({ numberOfNotes } : { numberOfNotes: number }) {
     const notePool = ["C", "D", "E", "F", "G", "A", "B"];
     const chordQuality = ["", "m", "dim", "maj7", "m7", "m7b5", "7", "maj9"];
-    const chordListLength = 2;
     const showNumberList = true;
     const chordListResult = [];
     const targetToneListResult = [];
 
-    for (let i = 0; i < chordListLength; i++) {
+    for (let i = 0; i < numberOfNotes; i++) {
       const note = notePool[Math.floor(Math.random() * notePool.length)];
       const extension = chordQuality[Math.floor(Math.random() * chordQuality.length)];
       const rawChord = note + extension;
@@ -68,12 +71,23 @@ export default function Home() {
     }
 
     if (showNumberList) {
-      setNumberList(targetToneListResult);
+      return { chords: chordListResult, targetTones: targetToneListResult };
     } else {
-      setNumberList([]);
+      return { chords: chordListResult, targetTones: [] };
     }
-    setChordList(chordListResult);
   }
+
+  function handlePressRandomButton() {
+    const resultGeneration = mainRandomGenerate(formOptions);
+    setChordList(resultGeneration.chords);
+    setNumberList(resultGeneration.targetTones);
+  }
+
+  useEffect(() => {
+    const resultGeneration = mainRandomGenerate(formOptions);
+    setChordList(resultGeneration.chords);
+    setNumberList(resultGeneration.targetTones);
+  }, [formOptions]);
 
   return (
     <>
@@ -101,20 +115,40 @@ export default function Home() {
 
         {/* Form Options */}
         <section className="">
+
           {/* Randomize Button */}
-          <div className="relative flex justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]">
-            <button onClick={mainRandomGenerate} className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+          <div className="relative flex flex-col justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]">
+            <button onClick={handlePressRandomButton} className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
             hover:bg-[#ffa2b1] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Randomize Chords!</button>
           </div>
+
           {/* Edit Metronome */}
-          <div className="relative flex justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[#ff95c5]">
+          <div className="relative flex flex-col justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[#ff95c5]">
             <button className="px-8 py-2 bg-[#ff389c] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
             hover:bg-[#ff95ca] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Edit Metronome</button>
           </div>
+
           {/* Options */}
-          <div className="relative flex justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[hsl(30,100%,89%)]">
-            <button className="px-8 py-2 bg-[#ffc053] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
-            hover:bg-[hsl(30,100%,89%)] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Options</button>
+          <div className="relative flex flex-col justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[hsl(30,100%,89%)]">
+            <div className=" bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]">
+              <details open className="open:border-b-2">
+
+                {/* Button To Open */}
+                <summary className="w-full px-8 py-2 text-center hover:bg-[hsl(30,100%,86%)] border-b-2 border-stone-900 cursor-pointer">Options</summary>
+
+                {/* Form Content */}
+                <div className="min-h-64 px-6 py-6  bg-[#fff7da]">
+                  <form className="leading-0" onSubmit={e => e.preventDefault()}>
+                    <label htmlFor="noteNumberInput" className="font-normal text-xl text-stone-900">Number of Notes</label>
+                    <input id="noteNumberInput" type="number" className="w-full px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#ffb22d]"
+                      value={formOptions.numberOfNotes} onChange={e => {
+                        setFormOptions({ ...formOptions, numberOfNotes: (parseInt(e.target.value) || 0) });
+                      }}
+                      min={1}></input>
+                  </form>
+                </div>
+              </details>
+            </div>
           </div>
         </section>
       </main>

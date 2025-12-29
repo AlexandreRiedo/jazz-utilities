@@ -21,6 +21,8 @@
 
 # TODO
 - RANDOM NOTE GENERATOR
+    - Options Form
+    - Metronome
 
 # Dev
 npm run dev
