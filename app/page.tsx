@@ -8,10 +8,10 @@ export default function Home() {
   const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
   const [numberList, setNumberList] = useState(["maj7", "13"]);
 
-  // const [numberOfNotes, setNumberOfNotes] = useState(2);
   const [formOptions, setFormOptions] = useState({
     numberOfNotes: 2,
-    notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"])
+    notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
+    chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7",])
   })
 
   function generateRandomTargetTone(chordQuality: string) {
@@ -21,8 +21,13 @@ export default function Home() {
 
     switch (chordQuality) {
       case "7":
+      case "9":
+      case "13":
+      case "7sus4":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "4");
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
+      // Major Triad uses 4 and not #11
       case "":
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "4");
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "6");
@@ -37,13 +42,28 @@ export default function Home() {
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
+      case "maj7#5":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 1, "#5");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
+        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
+
       case "m":
-      case "m7":
-      case "m9":
-      case "m11":
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
+        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
+      case "m7":
+      case "m9":
+      case "m11":
+      case "m6":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
+        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
+
+      case "mMaj7":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
       // Use locrian#2 by default
@@ -51,6 +71,24 @@ export default function Home() {
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 1, "b5");
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
+        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
+
+      case "alt":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("9"), 1, "b9");
+        allowedExtensionDegrees.push("#9");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 0);
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
+        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
+
+      case "7b9":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("9"), 1, "b9");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "4");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
+        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
+
+      case "13b9":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("9"), 1, "b9");
+        allowedExtensionDegrees.push("#9");
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
       case "dim":
@@ -68,9 +106,9 @@ export default function Home() {
     }
   }
 
-  function mainRandomGenerate({ numberOfNotes, notePool }: { numberOfNotes: number, notePool: Set<string> }) {
+  function mainRandomGenerate({ numberOfNotes, notePool, chordPool }: { numberOfNotes: number, notePool: Set<string>, chordPool: Set<string>, }) {
     const notePoolArray = Array.from(notePool);
-    const chordQuality = ["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "maj9"];
+    const chordQuality = Array.from(chordPool);
     const showNumberList = true;
     const chordListResult = [];
     const targetToneListResult = [];
@@ -102,7 +140,7 @@ export default function Home() {
     const resultGeneration = mainRandomGenerate(formOptions);
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
-  }, [formOptions.numberOfNotes, formOptions.notePool]);
+  }, [formOptions.numberOfNotes, formOptions.notePool, formOptions.chordPool]);
 
   return (
     <>
@@ -197,7 +235,6 @@ export default function Home() {
                       })
                       }
                     </fieldset>
-
                     {/* White Keys */}
                     <fieldset className="flex flex-row gap-2 my-2">
                       {["C", "D", "E", "F", "G", "A", "B"].map(item => {
@@ -221,7 +258,6 @@ export default function Home() {
                       })
                       }
                     </fieldset>
-
                     {/* Flat Keys */}
                     <fieldset className="flex flex-row gap-2 my-2">
                       {["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"].map(item => {
@@ -246,6 +282,103 @@ export default function Home() {
                       }
                     </fieldset>
 
+                    {/* Chord Type Pool */}
+                    <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
+                    <div className="grid grid-cols-[1fr_1fr_3fr]">
+                      {/* Simple Triads */}
+                      <fieldset className="flex flex-col gap-2 mb-2">
+                        {/* Exception Needed for major chord ! */}
+                        <label className="note-label">
+                          <span>maj</span>
+                          <input type="checkbox" value=""
+                            checked={formOptions.chordPool.has("")}
+                            onChange={e => {
+                              const newChordPool = new Set(formOptions.chordPool);
+                              if (e.target.checked) {
+                                newChordPool.add(e.target.value);
+                              } else {
+                                newChordPool.delete(e.target.value);
+                              }
+                              setFormOptions({ ...formOptions, chordPool: newChordPool });
+                            }}
+                            className="note-checkbox" />
+                        </label>
+
+                        {["m", "dim", "sus2", "sus4"].map(item => {
+                          return (
+                            <label key={item} className="note-label">
+                              <span>{item}</span>
+                              <input type="checkbox" value={item}
+                                checked={formOptions.chordPool.has(item)}
+                                onChange={e => {
+                                  const newChordPool = new Set(formOptions.chordPool);
+                                  if (e.target.checked) {
+                                    newChordPool.add(e.target.value);
+                                  } else {
+                                    newChordPool.delete(e.target.value);
+                                  }
+                                  setFormOptions({ ...formOptions, chordPool: newChordPool });
+                                }}
+                                className="note-checkbox" />
+                            </label>
+                          )
+                        })
+                        }
+                      </fieldset>
+
+                      {/* 7th Chords */}
+                      <fieldset className="flex flex-col gap-2 mb-2">
+                        {["maj7", "m7", "m7b5", "7", "°7"].map(item => {
+                          return (
+                            <label key={item} className="note-label">
+                              <span>{item}</span>
+                              <input type="checkbox" value={item}
+                                checked={formOptions.chordPool.has(item)}
+                                onChange={e => {
+                                  const newChordPool = new Set(formOptions.chordPool);
+                                  if (e.target.checked) {
+                                    newChordPool.add(e.target.value);
+                                  } else {
+                                    newChordPool.delete(e.target.value);
+                                  }
+                                  setFormOptions({ ...formOptions, chordPool: newChordPool });
+                                }}
+                                className="note-checkbox" />
+                            </label>
+                          )
+                        })
+                        }
+                      </fieldset>
+
+                      {/* Advanced Chords */}
+                      <fieldset className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2">
+                        {["6", "maj9", "maj13",
+                          "m9", "m11", "m6",
+                          "9", "13", "7sus4",
+                          "alt", "7b9", "7#11",
+                          "mMaj7", "13b9", "maj7#5"].map(item => {
+                            return (
+                              <label key={item} className="note-label">
+                                <span>{item}</span>
+                                <input type="checkbox" value={item}
+                                  checked={formOptions.chordPool.has(item)}
+                                  onChange={e => {
+                                    const newChordPool = new Set(formOptions.chordPool);
+                                    if (e.target.checked) {
+                                      newChordPool.add(e.target.value);
+                                    } else {
+                                      newChordPool.delete(e.target.value);
+                                    }
+                                    setFormOptions({ ...formOptions, chordPool: newChordPool });
+                                  }}
+                                  className="note-checkbox" />
+                              </label>
+                            )
+                          })
+                        }
+                      </fieldset>
+
+                    </div>
                   </form>
                 </div>
               </details>

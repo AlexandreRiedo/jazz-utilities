@@ -9,21 +9,21 @@
 - Multi-Line UI
 
 ## RANDOM CHORD GENERATOR
-- Target Tone/Top Note
+- Chord Type Form
+- Forbid Note Repeat
+
 - Inversions
 - II-V-I
 - VI-II-V-I
 - III-VI-II-V
-- 
+- Add target/start note indicator on chord number
+
+# TODO
+- REFACTOR INTO COMPONENTS/FUNCTIONS !
 
 ## RANDOM RHYTHM GENERATOR
 - Use idiomatic jazz rhythms
 - Use a JS lib (vexFlow)
-
-# TODO
-- RANDOM NOTE GENERATOR
-    - Options Form
-    - Metronome
 
 # Dev
 npm run dev

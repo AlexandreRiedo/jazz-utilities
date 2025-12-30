@@ -11,5 +11,5 @@
   @apply inline-flex flex-col items-center mx-1 text-base text-stone-700 cursor-pointer;
 }
 .note-checkbox {
-  @apply appearance-none not-sm:size-6 size-8 border-2 border-[#574141] bg-[hsl(29,100%,90%)] checked:bg-[url('/svg/checked.svg')] cursor-pointer;
+  @apply appearance-none size-8 border-2 border-[#574141] bg-[hsl(29,100%,90%)] checked:bg-[url('/svg/checked.svg')] cursor-pointer;
 }
