@@ -154,12 +154,12 @@ export default function Home() {
           {/* Options */}
           <div className="relative flex flex-col justify-end py-8 px-4 border-y-0 border-[#7e4651] bg-[hsl(30,100%,89%)]
            lg:bg-transparent lg:w-auto">
-            <div className=" bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+            <div className="bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
             ">
               <details open className="open:border-b-2">
 
                 {/* Button To Open */}
-                <summary className="w-full px-8 py-2 text-center hover:bg-[hsl(30,100%,86%)] border-b-2 border-stone-900 cursor-pointer">Options</summary>
+                <summary className="px-8 py-2 text-center hover:bg-[hsl(30,100%,86%)] border-b-2 border-stone-900 cursor-pointer">Options</summary>
 
                 {/* Form Content */}
                 <div className="min-h-64 px-6 py-6  bg-[#fff7da]">

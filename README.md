@@ -14,6 +14,7 @@
 - II-V-I
 - VI-II-V-I
 - III-VI-II-V
+- 
 
 ## RANDOM RHYTHM GENERATOR
 - Use idiomatic jazz rhythms
