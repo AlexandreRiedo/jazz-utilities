@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react";
-import { Chord } from "tonal";
+import { Chord, note } from "tonal";
 import { Scale } from "tonal";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -9,7 +9,10 @@ export default function Home() {
   const [numberList, setNumberList] = useState(["maj7", "13"]);
 
   // const [numberOfNotes, setNumberOfNotes] = useState(2);
-  const [formOptions, setFormOptions] = useState({ numberOfNotes: 2 })
+  const [formOptions, setFormOptions] = useState({ 
+    numberOfNotes: 2, 
+    notePool: new Set(["C", "D", "E", "F", "G", "A", "B"]) 
+  })
 
   function generateRandomTargetTone(chordQuality: string) {
     // The form to select target tones will return a primitive extension list as shown below,
@@ -54,15 +57,16 @@ export default function Home() {
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
     }
   }
-  function mainRandomGenerate({ numberOfNotes } : { numberOfNotes: number }) {
-    const notePool = ["C", "D", "E", "F", "G", "A", "B"];
+
+  function mainRandomGenerate({ numberOfNotes, notePool }: { numberOfNotes: number, notePool: Set<string> }) {
+    const notePoolArray = Array.from(notePool);
     const chordQuality = ["", "m", "dim", "maj7", "m7", "m7b5", "7", "maj9"];
     const showNumberList = true;
     const chordListResult = [];
     const targetToneListResult = [];
 
     for (let i = 0; i < numberOfNotes; i++) {
-      const note = notePool[Math.floor(Math.random() * notePool.length)];
+      const note = notePoolArray[Math.floor(Math.random() * notePoolArray.length)];
       const extension = chordQuality[Math.floor(Math.random() * chordQuality.length)];
       const rawChord = note + extension;
 
@@ -83,11 +87,12 @@ export default function Home() {
     setNumberList(resultGeneration.targetTones);
   }
 
+  // Update Shown Notes Based On Changes in formOptions
   useEffect(() => {
     const resultGeneration = mainRandomGenerate(formOptions);
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
-  }, [formOptions]);
+  }, [formOptions.numberOfNotes, formOptions.notePool]);
 
   return (
     <>
@@ -104,8 +109,8 @@ export default function Home() {
           <div className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 p-4 min-h-96 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]">
             {chordList.map((chord, index) => {
               return (
-                <output key={uuidv4()} className="text-center font-neobrutalist font-[450] text-8xl">
-                  <span key={uuidv4()} className="block text-center font-normal text-6xl text-stone-600">
+                <output key={index} className="text-center font-neobrutalist font-[450] text-8xl">
+                  <span className="block text-center font-normal text-6xl text-stone-600">
                     {numberList[index]}</span>
                   {chord}</output>
               )
@@ -125,7 +130,7 @@ export default function Home() {
           {/* Edit Metronome */}
           <div className="relative flex flex-col justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[#ff95c5]">
             <button className="px-8 py-2 bg-[#ff389c] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
-            hover:bg-[#ff95ca] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Edit Metronome</button>
+            hover:bg-[#ff95ca] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Metronome</button>
           </div>
 
           {/* Options */}
@@ -139,12 +144,43 @@ export default function Home() {
                 {/* Form Content */}
                 <div className="min-h-64 px-6 py-6  bg-[#fff7da]">
                   <form className="leading-0" onSubmit={e => e.preventDefault()}>
+                    {/* Number Of Notes */}
                     <label htmlFor="noteNumberInput" className="font-normal text-xl text-stone-900">Number of Notes</label>
-                    <input id="noteNumberInput" type="number" className="w-full px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#ffb22d]"
+                    <input id="noteNumberInput" type="number" className="w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
                       value={formOptions.numberOfNotes} onChange={e => {
                         setFormOptions({ ...formOptions, numberOfNotes: (parseInt(e.target.value) || 0) });
                       }}
                       min={1}></input>
+
+                    {/* Note Choice */}
+                    <label className="block font-normal text-xl text-stone-900">Note Pool</label>
+                    <fieldset className="flex flex-row gap-2">
+
+                      {/* White Keys */}
+                      {["C", "D", "E", "F", "G", "A", "B"].map(item => {
+                        return (
+                          <label key={item} className="inline-flex items-center gap-1 text-lg text-stone-700 cursor-pointer">
+                            <span>{item}</span>
+                            <input type="checkbox" value={item}
+                            checked={formOptions.notePool.has(item)}
+                              onChange={e => {
+                                const newNotePool = new Set(formOptions.notePool);
+                                if (e.target.checked) {
+                                  newNotePool.add(e.target.value);
+                                } else {
+                                  newNotePool.delete(e.target.value);
+                                }
+                                setFormOptions({ ...formOptions, notePool: newNotePool });
+                              }}
+                              className="appearance-none size-8 border-2 border-[#574141] bg-[hsl(29,100%,90%)]  
+                        checked:bg-[url('/svg/checked.svg')]" />
+                          </label>
+                        )
+                      })
+                      }
+
+                    </fieldset>
+
                   </form>
                 </div>
               </details>
