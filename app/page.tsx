@@ -9,9 +9,9 @@ export default function Home() {
   const [numberList, setNumberList] = useState(["maj7", "13"]);
 
   // const [numberOfNotes, setNumberOfNotes] = useState(2);
-  const [formOptions, setFormOptions] = useState({ 
-    numberOfNotes: 2, 
-    notePool: new Set(["C", "D", "E", "F", "G", "A", "B"]) 
+  const [formOptions, setFormOptions] = useState({
+    numberOfNotes: 2,
+    notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"])
   })
 
   function generateRandomTargetTone(chordQuality: string) {
@@ -53,6 +53,16 @@ export default function Home() {
         allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
+      case "dim":
+      case "°7":
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 1, "b5");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
+        allowedExtensionDegrees.push("13");
+        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
+        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
+
       default:
         return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
     }
@@ -60,7 +70,7 @@ export default function Home() {
 
   function mainRandomGenerate({ numberOfNotes, notePool }: { numberOfNotes: number, notePool: Set<string> }) {
     const notePoolArray = Array.from(notePool);
-    const chordQuality = ["", "m", "dim", "maj7", "m7", "m7b5", "7", "maj9"];
+    const chordQuality = ["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "maj9"];
     const showNumberList = true;
     const chordListResult = [];
     const targetToneListResult = [];
@@ -96,14 +106,16 @@ export default function Home() {
 
   return (
     <>
-      <main className="grid grid-rows-[1fr_auto] h-screen">
+      <main className="grid grid-rows-[1fr_auto] h-screen
+      lg:grid-rows-[1fr_auto] lg:h-auto">
         {/* Chord Display */}
-        <section className="mt-8 relative self-end flex flex-col justify-center">
+        <section className="mt-8 relative self-end flex flex-col justify-center
+        lg:min-w-300 lg:mx-auto">
           {/* Decoration */}
-          <div className="absolute w-60 h-20 bg-red-400 bottom-[20%]"></div>
-          <div className="absolute w-60 h-20 bg-pink-400 right-0 bottom-[60%]"></div>
-          <div className="absolute w-20 h-30 bg-orange-400 left-[0%] bottom-[50%]"></div>
-          <div className="absolute w-80 h-20 bg-lime-300 right-[0%] bottom-20"></div>
+          <div className="absolute w-40 lg:w-screen h-20 bg-red-400 lg:left-[10%] bottom-[20%]"></div>
+          <div className="absolute w-40 lg:w-screen h-20 bg-pink-400 right-0 lg:right-[10%] bottom-[60%]"></div>
+          <div className="absolute w-40 lg:w-screen h-30 bg-orange-400 lg:left-[10%] bottom-[50%]"></div>
+          <div className="absolute w-40 lg:w-screen h-20 bg-lime-300 right-0 lg:right-[10%] bottom-20"></div>
 
           {/* Main Chord Card Display */}
           <div className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 p-4 min-h-96 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]">
@@ -119,23 +131,28 @@ export default function Home() {
         </section>
 
         {/* Form Options */}
-        <section className="">
+        <section className="
+        lg:grid lg:grid-cols-3">
 
           {/* Randomize Button */}
-          <div className="relative flex flex-col justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]">
-            <button onClick={handlePressRandomButton} className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
-            hover:bg-[#ffa2b1] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Randomize Chords!</button>
+          <div onClick={handlePressRandomButton} className="relative flex flex-col justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]
+          lg:my-0">
+            <button className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+            hover:bg-[#ffa2b1] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer
+            lg:mt-0">Randomize Chords!</button>
           </div>
 
           {/* Edit Metronome */}
           <div className="relative flex flex-col justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[#ff95c5]">
             <button className="px-8 py-2 bg-[#ff389c] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
-            hover:bg-[#ff95ca] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer">Metronome</button>
+            hover:bg-[#ff95ca] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer
+            ">Metronome</button>
           </div>
 
           {/* Options */}
           <div className="relative flex flex-col justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[hsl(30,100%,89%)]">
-            <div className=" bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]">
+            <div className=" bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+            ">
               <details open className="open:border-b-2">
 
                 {/* Button To Open */}
@@ -152,17 +169,16 @@ export default function Home() {
                       }}
                       min={1}></input>
 
-                    {/* Note Choice */}
+                    {/* Note Pool */}
                     <label className="block font-normal text-xl text-stone-900">Note Pool</label>
-                    <fieldset className="flex flex-row gap-2">
-
-                      {/* White Keys */}
-                      {["C", "D", "E", "F", "G", "A", "B"].map(item => {
+                    {/* Sharp Keys */}
+                    <fieldset className="flex flex-row gap-2 mb-2">
+                      {["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"].map(item => {
                         return (
-                          <label key={item} className="inline-flex items-center gap-1 text-lg text-stone-700 cursor-pointer">
+                          <label key={item} className="note-label">
                             <span>{item}</span>
                             <input type="checkbox" value={item}
-                            checked={formOptions.notePool.has(item)}
+                              checked={formOptions.notePool.has(item)}
                               onChange={e => {
                                 const newNotePool = new Set(formOptions.notePool);
                                 if (e.target.checked) {
@@ -172,13 +188,59 @@ export default function Home() {
                                 }
                                 setFormOptions({ ...formOptions, notePool: newNotePool });
                               }}
-                              className="appearance-none size-8 border-2 border-[#574141] bg-[hsl(29,100%,90%)]  
-                        checked:bg-[url('/svg/checked.svg')]" />
+                              className="note-checkbox" />
                           </label>
                         )
                       })
                       }
+                    </fieldset>
 
+                    {/* White Keys */}
+                    <fieldset className="flex flex-row gap-2 my-2">
+                      {["C", "D", "E", "F", "G", "A", "B"].map(item => {
+                        return (
+                          <label key={item} className="note-label">
+                            <span>{item}</span>
+                            <input type="checkbox" value={item}
+                              checked={formOptions.notePool.has(item)}
+                              onChange={e => {
+                                const newNotePool = new Set(formOptions.notePool);
+                                if (e.target.checked) {
+                                  newNotePool.add(e.target.value);
+                                } else {
+                                  newNotePool.delete(e.target.value);
+                                }
+                                setFormOptions({ ...formOptions, notePool: newNotePool });
+                              }}
+                              className="note-checkbox" />
+                          </label>
+                        )
+                      })
+                      }
+                    </fieldset>
+
+                    {/* Flat Keys */}
+                    <fieldset className="flex flex-row gap-2 my-2">
+                      {["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"].map(item => {
+                        return (
+                          <label key={item} className="note-label">
+                            <span>{item}</span>
+                            <input type="checkbox" value={item}
+                              checked={formOptions.notePool.has(item)}
+                              onChange={e => {
+                                const newNotePool = new Set(formOptions.notePool);
+                                if (e.target.checked) {
+                                  newNotePool.add(e.target.value);
+                                } else {
+                                  newNotePool.delete(e.target.value);
+                                }
+                                setFormOptions({ ...formOptions, notePool: newNotePool });
+                              }}
+                              className="note-checkbox" />
+                          </label>
+                        )
+                      })
+                      }
                     </fieldset>
 
                   </form>
