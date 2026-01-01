@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${nationalPark.variable} ${neoBrutalist.variable} antialiased bg-rose-200 bg-[url('/svg/grid.svg')] bg-repeat bg-size-[80px_80px]`}
+        className={`${nationalPark.variable} ${neoBrutalist.variable} antialiased bg-rose-200 bg-[url('/chord-utility/svg/grid.svg')] bg-repeat bg-size-[80px_80px]`}
       >
         {children}
       </body>
