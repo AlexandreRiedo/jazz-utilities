@@ -1,8 +1,8 @@
 "use client"
 import { useEffect, useState } from "react";
-import { Chord, note } from "tonal";
-import { Scale } from "tonal";
-import { v4 as uuidv4 } from 'uuid';
+import { mainRandomGenerate } from './chordUtils';
+import NoteCheckboxGroup from './NoteCheckboxGroup';
+import ChordCheckboxGroup from './ChordCheckboxGroup';
 
 export default function Home() {
   const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
@@ -13,121 +13,6 @@ export default function Home() {
     notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
     chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7",])
   })
-
-  function generateRandomTargetTone(chordQuality: string) {
-    // The form to select target tones will return a primitive extension list as shown below,
-    // Each chord scale will just deviate from this base extension list.
-    const allowedExtensionDegrees = ["1", "9", "3", "#11", "5", "13", "7"];
-
-    switch (chordQuality) {
-      case "7":
-      case "9":
-      case "13":
-      case "7sus4":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "4");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      // Major Triad uses 4 and not #11
-      case "":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "4");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "6");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "6":
-      case "maj7":
-      case "maj9":
-      case "maj7#11":
-      case "maj13":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "maj7#5":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 1, "#5");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "m":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-      case "m7":
-      case "m9":
-      case "m11":
-      case "m6":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "mMaj7":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      // Use locrian#2 by default
-      case "m7b5":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 1, "b5");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "alt":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("9"), 1, "b9");
-        allowedExtensionDegrees.push("#9");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 0);
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "7b9":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("9"), 1, "b9");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "4");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "13b9":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("9"), 1, "b9");
-        allowedExtensionDegrees.push("#9");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      case "dim":
-      case "°7":
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("3"), 1, "b3");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("#11"), 1, "11");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 1, "b5");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
-        allowedExtensionDegrees.push("13");
-        allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-
-      default:
-        return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
-    }
-  }
-
-  function mainRandomGenerate({ numberOfNotes, notePool, chordPool }: { numberOfNotes: number, notePool: Set<string>, chordPool: Set<string>, }) {
-    const notePoolArray = Array.from(notePool);
-    const chordQuality = Array.from(chordPool);
-    const showNumberList = true;
-    const chordListResult = [];
-    const targetToneListResult = [];
-
-    for (let i = 0; i < numberOfNotes; i++) {
-      const note = notePoolArray[Math.floor(Math.random() * notePoolArray.length)];
-      const extension = chordQuality[Math.floor(Math.random() * chordQuality.length)];
-      const rawChord = note + extension;
-
-      targetToneListResult.push(generateRandomTargetTone(extension));
-      chordListResult.push(rawChord);
-    }
-
-    if (showNumberList) {
-      return { chords: chordListResult, targetTones: targetToneListResult };
-    } else {
-      return { chords: chordListResult, targetTones: [] };
-    }
-  }
 
   function handlePressRandomButton() {
     const resultGeneration = mainRandomGenerate(formOptions);
@@ -196,7 +81,7 @@ export default function Home() {
            lg:bg-transparent lg:w-auto">
             <div className="bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
             ">
-              <details open className="open:border-b-2">
+              <details className="open:border-b-2">
 
                 {/* Button To Open */}
                 <summary className="px-8 py-2 text-center hover:bg-[hsl(30,100%,86%)] border-b-2 border-stone-900 cursor-pointer">Options</summary>
@@ -215,170 +100,57 @@ export default function Home() {
                     {/* Note Pool */}
                     <label className="block font-normal text-xl text-stone-900">Note Pool</label>
                     {/* Sharp Keys */}
-                    <fieldset className="flex flex-row gap-2 mb-2">
-                      {["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"].map(item => {
-                        return (
-                          <label key={item} className="note-label">
-                            <span>{item}</span>
-                            <input type="checkbox" value={item}
-                              checked={formOptions.notePool.has(item)}
-                              onChange={e => {
-                                const newNotePool = new Set(formOptions.notePool);
-                                if (e.target.checked) {
-                                  newNotePool.add(e.target.value);
-                                } else {
-                                  newNotePool.delete(e.target.value);
-                                }
-                                setFormOptions({ ...formOptions, notePool: newNotePool });
-                              }}
-                              className="note-checkbox" />
-                          </label>
-                        )
-                      })
-                      }
-                    </fieldset>
+                    <NoteCheckboxGroup
+                      notes={["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"]}
+                      notePool={formOptions.notePool}
+                      onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                    />
                     {/* White Keys */}
-                    <fieldset className="flex flex-row gap-2 my-2">
-                      {["C", "D", "E", "F", "G", "A", "B"].map(item => {
-                        return (
-                          <label key={item} className="note-label">
-                            <span>{item}</span>
-                            <input type="checkbox" value={item}
-                              checked={formOptions.notePool.has(item)}
-                              onChange={e => {
-                                const newNotePool = new Set(formOptions.notePool);
-                                if (e.target.checked) {
-                                  newNotePool.add(e.target.value);
-                                } else {
-                                  newNotePool.delete(e.target.value);
-                                }
-                                setFormOptions({ ...formOptions, notePool: newNotePool });
-                              }}
-                              className="note-checkbox" />
-                          </label>
-                        )
-                      })
-                      }
-                    </fieldset>
+                    <NoteCheckboxGroup
+                      notes={["C", "D", "E", "F", "G", "A", "B"]}
+                      notePool={formOptions.notePool}
+                      onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                    />
                     {/* Flat Keys */}
-                    <fieldset className="flex flex-row gap-2 my-2">
-                      {["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"].map(item => {
-                        return (
-                          <label key={item} className="note-label">
-                            <span>{item}</span>
-                            <input type="checkbox" value={item}
-                              checked={formOptions.notePool.has(item)}
-                              onChange={e => {
-                                const newNotePool = new Set(formOptions.notePool);
-                                if (e.target.checked) {
-                                  newNotePool.add(e.target.value);
-                                } else {
-                                  newNotePool.delete(e.target.value);
-                                }
-                                setFormOptions({ ...formOptions, notePool: newNotePool });
-                              }}
-                              className="note-checkbox" />
-                          </label>
-                        )
-                      })
-                      }
-                    </fieldset>
+                    <NoteCheckboxGroup
+                      notes={["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"]}
+                      notePool={formOptions.notePool}
+                      onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                    />
 
                     {/* Chord Type Pool */}
                     <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
                     <div className="grid grid-cols-[1fr_1fr_3fr]">
                       {/* Simple Triads */}
-                      <fieldset className="flex flex-col gap-2 mb-2">
-                        {/* Exception Needed for major chord ! */}
-                        <label className="note-label">
-                          <span>maj</span>
-                          <input type="checkbox" value=""
-                            checked={formOptions.chordPool.has("")}
-                            onChange={e => {
-                              const newChordPool = new Set(formOptions.chordPool);
-                              if (e.target.checked) {
-                                newChordPool.add(e.target.value);
-                              } else {
-                                newChordPool.delete(e.target.value);
-                              }
-                              setFormOptions({ ...formOptions, chordPool: newChordPool });
-                            }}
-                            className="note-checkbox" />
-                        </label>
-
-                        {["m", "dim", "sus2", "sus4"].map(item => {
-                          return (
-                            <label key={item} className="note-label">
-                              <span>{item}</span>
-                              <input type="checkbox" value={item}
-                                checked={formOptions.chordPool.has(item)}
-                                onChange={e => {
-                                  const newChordPool = new Set(formOptions.chordPool);
-                                  if (e.target.checked) {
-                                    newChordPool.add(e.target.value);
-                                  } else {
-                                    newChordPool.delete(e.target.value);
-                                  }
-                                  setFormOptions({ ...formOptions, chordPool: newChordPool });
-                                }}
-                                className="note-checkbox" />
-                            </label>
-                          )
-                        })
-                        }
-                      </fieldset>
+                      <ChordCheckboxGroup
+                        chords={[
+                          { value: "", display: "maj" },
+                          "m", "dim", "sus2", "sus4"
+                        ]}
+                        chordPool={formOptions.chordPool}
+                        onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                      />
 
                       {/* 7th Chords */}
-                      <fieldset className="flex flex-col gap-2 mb-2">
-                        {["maj7", "m7", "m7b5", "7", "°7"].map(item => {
-                          return (
-                            <label key={item} className="note-label">
-                              <span>{item}</span>
-                              <input type="checkbox" value={item}
-                                checked={formOptions.chordPool.has(item)}
-                                onChange={e => {
-                                  const newChordPool = new Set(formOptions.chordPool);
-                                  if (e.target.checked) {
-                                    newChordPool.add(e.target.value);
-                                  } else {
-                                    newChordPool.delete(e.target.value);
-                                  }
-                                  setFormOptions({ ...formOptions, chordPool: newChordPool });
-                                }}
-                                className="note-checkbox" />
-                            </label>
-                          )
-                        })
-                        }
-                      </fieldset>
+                      <ChordCheckboxGroup
+                        chords={["maj7", "m7", "m7b5", "7", "°7"]}
+                        chordPool={formOptions.chordPool}
+                        onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                      />
 
                       {/* Advanced Chords */}
-                      <fieldset className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2">
-                        {["6", "maj9", "maj13",
+                      <ChordCheckboxGroup
+                        chords={[
+                          "6", "maj9", "maj13",
                           "m9", "m11", "m6",
                           "9", "13", "7sus4",
                           "alt", "7b9", "7#11",
-                          "mMaj7", "13b9", "maj7#5"].map(item => {
-                            return (
-                              <label key={item} className="note-label">
-                                <span>{item}</span>
-                                <input type="checkbox" value={item}
-                                  checked={formOptions.chordPool.has(item)}
-                                  onChange={e => {
-                                    const newChordPool = new Set(formOptions.chordPool);
-                                    if (e.target.checked) {
-                                      newChordPool.add(e.target.value);
-                                    } else {
-                                      newChordPool.delete(e.target.value);
-                                    }
-                                    setFormOptions({ ...formOptions, chordPool: newChordPool });
-                                  }}
-                                  className="note-checkbox" />
-                              </label>
-                            )
-                          })
-                        }
-                      </fieldset>
+                          "mMaj7", "13b9", "maj7#5"
+                        ]}
+                        chordPool={formOptions.chordPool}
+                        onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                        className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2"
+                      />
 
                     </div>
                   </form>
