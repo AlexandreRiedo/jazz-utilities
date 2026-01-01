@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { mainRandomGenerate } from './chordUtils';
 import NoteCheckboxGroup from './NoteCheckboxGroup';
 import ChordCheckboxGroup from './ChordCheckboxGroup';
+import { useMetronome } from './useMetronome';
+import MetronomeControls from './MetronomeControls';
 
 export default function Home() {
   const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
@@ -11,14 +13,16 @@ export default function Home() {
   const [formOptions, setFormOptions] = useState({
     numberOfNotes: 2,
     notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
-    chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7",])
+    chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"])
   })
 
-  function handlePressRandomButton() {
+  function triggerRandomGeneration() {
     const resultGeneration = mainRandomGenerate(formOptions);
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
   }
+
+  const { metronomeSettings, setMetronomeSettings, metronomeState, toggleMetronome } = useMetronome(triggerRandomGeneration);
 
   // Update Shown Notes Based On Changes in formOptions
   useEffect(() => {
@@ -29,137 +33,159 @@ export default function Home() {
 
   return (
     <>
-      <main className="grid grid-rows-[1fr_auto] h-screen
-      lg:flex lg:flex-col lg:justify-center lg:items-center lg:pt-[10vh] lg:h-auto lg:overflow-x-clip">
-        {/* Chord Display */}
-        <section className="mt-8 relative self-end flex flex-col justify-center
+      <div className="lg:min-h-screen lg:flex lg:items-center lg:justify-center">
+        <main className="grid grid-rows-[1fr_auto] h-screen mt-[2vh]
+      lg:w-full lg:flex lg:flex-col lg:justify-center lg:items-center lg:h-auto lg:overflow-x-clip">
+          {/* Chord Display */}
+          <section className="mt-8 relative self-end flex flex-col justify-center
         lg:w-230 xl:w-300 lg:mx-auto">
-          {/* Decoration */}
-          <div className="absolute w-40 lg:w-screen h-20 bg-red-400 lg:left-[10%] bottom-[20%]"></div>
-          <div className="absolute w-40 lg:w-screen h-20 bg-pink-400 right-0 lg:right-[10%] bottom-[60%]"></div>
-          <div className="absolute w-40 lg:w-screen h-30 bg-orange-400 lg:left-[10%] bottom-[50%]"></div>
-          <div className="absolute w-40 lg:w-screen h-20 bg-lime-300 right-0 lg:right-[10%] bottom-20"></div>
+            {/* Branding */}
+            <header className="absolute z-20 top-[-5%] left-[50%] lg:left-[60%] px-8 py-2 lg:px-24 lg:py-2 text-lg lg:text-2xl border-3 font-semibold border-stone-950 font-neobrutalist text-white bg-stone-800 ">
+              <span>Chord Utility 0.1</span>
+            </header>
 
-          {/* Main Chord Card Display */}
-          <div className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 p-4 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
+            {/* Decoration */}
+            <div className="absolute w-40 lg:w-screen h-20 bg-red-400 lg:left-[10%] bottom-[20%]"></div>
+            <div className="absolute w-40 lg:w-screen h-20 bg-pink-400 right-0 lg:right-[10%] bottom-[60%]"></div>
+            <div className="absolute w-40 lg:w-screen h-30 bg-orange-400 lg:left-[10%] bottom-[50%]"></div>
+            <div className="absolute w-40 lg:w-screen h-20 bg-lime-300 right-0 lg:right-[10%] bottom-20"></div>
+
+            {/* Main Chord Card Display */}
+            <div className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
           min-h-96 lg:min-h-120">
-            {chordList.map((chord, index) => {
-              return (
-                <output key={index} className="text-center font-neobrutalist font-[450] 
+              {chordList.map((chord, index) => {
+                return (
+                  <output key={index} className="text-center font-neobrutalist font-[450] 
                 text-5xl lg:text-8xl">
-                  <span className="block text-center font-normal text-stone-600
+                    <span className="block text-center font-normal text-stone-600
                   text-4xl lg:text-6xl">
-                    {numberList[index]}</span>
-                  {chord}</output>
-              )
-            })}
-          </div>
-        </section>
+                      {numberList[index]}</span>
+                    {chord}</output>
+                )
+              })}
+            </div>
+          </section>
 
-        {/* Form Options */}
-        <section className="
+          {/* Form Options */}
+          <section className="
+        lg:relative lg:bottom-[64px]
         lg:grid lg:grid-cols-[1fr_auto_auto] lg:gap-8 lg:items-start">
 
-          {/* Randomize Button */}
-          <div onClick={handlePressRandomButton} className="relative flex flex-col justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]
+            {/* Randomize Button */}
+            <div onClick={triggerRandomGeneration} className="relative flex flex-col justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]
           lg:my-0 lg:bg-transparent">
-            <button className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+              <button className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
             hover:bg-[#ffa2b1] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer
             lg:mt-0">Randomize Chords!</button>
-          </div>
-
-          {/* Edit Metronome */}
-          <div className="relative flex flex-col justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[#ff95c5]
-           lg:bg-transparent">
-            <button className="px-8 py-2 bg-[#ff389c] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
-            hover:bg-[#ff95ca] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer
-            ">Metronome</button>
-          </div>
-
-          {/* Options */}
-          <div className="relative flex flex-col justify-end py-8 px-4 border-y-0 border-[#7e4651] bg-[hsl(30,100%,89%)]
-           lg:bg-transparent lg:w-auto">
-            <div className="bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
-            ">
-              <details className="open:border-b-2">
-
-                {/* Button To Open */}
-                <summary className="px-8 py-2 text-center hover:bg-[hsl(30,100%,86%)] border-b-2 border-stone-900 cursor-pointer">Options</summary>
-
-                {/* Form Content */}
-                <div className="min-h-64 px-6 py-6  bg-[#fff7da]">
-                  <form className="leading-0" onSubmit={e => e.preventDefault()}>
-                    {/* Number Of Notes */}
-                    <label htmlFor="noteNumberInput" className="block font-normal text-xl text-stone-900">Number of Notes</label>
-                    <input id="noteNumberInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
-                      value={formOptions.numberOfNotes} onChange={e => {
-                        setFormOptions({ ...formOptions, numberOfNotes: (parseInt(e.target.value) || 0) });
-                      }}
-                      min={1}></input>
-
-                    {/* Note Pool */}
-                    <label className="block font-normal text-xl text-stone-900">Note Pool</label>
-                    {/* Sharp Keys */}
-                    <NoteCheckboxGroup
-                      notes={["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"]}
-                      notePool={formOptions.notePool}
-                      onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-                    />
-                    {/* White Keys */}
-                    <NoteCheckboxGroup
-                      notes={["C", "D", "E", "F", "G", "A", "B"]}
-                      notePool={formOptions.notePool}
-                      onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-                    />
-                    {/* Flat Keys */}
-                    <NoteCheckboxGroup
-                      notes={["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"]}
-                      notePool={formOptions.notePool}
-                      onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-                    />
-
-                    {/* Chord Type Pool */}
-                    <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
-                    <div className="grid grid-cols-[1fr_1fr_3fr]">
-                      {/* Simple Triads */}
-                      <ChordCheckboxGroup
-                        chords={[
-                          { value: "", display: "maj" },
-                          "m", "dim", "sus2", "sus4"
-                        ]}
-                        chordPool={formOptions.chordPool}
-                        onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
-                      />
-
-                      {/* 7th Chords */}
-                      <ChordCheckboxGroup
-                        chords={["maj7", "m7", "m7b5", "7", "°7"]}
-                        chordPool={formOptions.chordPool}
-                        onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
-                      />
-
-                      {/* Advanced Chords */}
-                      <ChordCheckboxGroup
-                        chords={[
-                          "6", "maj9", "maj13",
-                          "m9", "m11", "m6",
-                          "9", "13", "7sus4",
-                          "alt", "7b9", "7#11",
-                          "mMaj7", "13b9", "maj7#5"
-                        ]}
-                        chordPool={formOptions.chordPool}
-                        onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
-                        className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2"
-                      />
-
-                    </div>
-                  </form>
-                </div>
-              </details>
             </div>
-          </div>
-        </section>
-      </main>
+
+            {/* Edit Metronome */}
+            <div className="relative flex flex-col justify-end py-8 w-full px-4 border-y-0 border-[#7e4651] bg-[#ff95c5]
+           lg:bg-transparent">
+              <div className="bg-[#ff389c] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]">
+                <details className="open:border-b-2">
+
+                  {/* Button To Open */}
+                  <summary className="px-8 py-2 text-center hover:bg-[#ff95ca] border-b-2 border-stone-900 cursor-pointer">Metronome</summary>
+
+                  {/* Metronome Content */}
+                  <div className="min-h-64 px-6 py-6 bg-[#ffcce5]">
+                    <MetronomeControls
+                      metronomeSettings={metronomeSettings}
+                      setMetronomeSettings={setMetronomeSettings}
+                      metronomeState={metronomeState}
+                      toggleMetronome={toggleMetronome}
+                    />
+                  </div>
+                </details>
+              </div>
+            </div>
+
+            {/* Options */}
+            <div className="relative flex flex-col justify-end py-8 px-4 border-y-0 border-[#7e4651] bg-[hsl(30,100%,89%)]
+           lg:bg-transparent lg:w-auto">
+              <div className="bg-[#ffc053] border-2 border-b-0 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
+            ">
+                <details className="open:border-b-2">
+
+                  {/* Button To Open */}
+                  <summary className="px-8 py-2 text-center hover:bg-[hsl(30,100%,86%)] border-b-2 border-stone-900 cursor-pointer">Options</summary>
+
+                  {/* Form Content */}
+                  <div className="min-h-64 px-6 py-6  bg-[#fff7da]">
+                    <form className="leading-0" onSubmit={e => e.preventDefault()}>
+                      {/* Number Of Notes */}
+                      <label htmlFor="noteNumberInput" className="block font-normal text-xl text-stone-900">Number of Notes</label>
+                      <input id="noteNumberInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
+                        value={formOptions.numberOfNotes} onChange={e => {
+                          setFormOptions({ ...formOptions, numberOfNotes: (parseInt(e.target.value) || 0) });
+                        }}
+                        min={1}></input>
+
+                      {/* Note Pool */}
+                      <label className="block font-normal text-xl text-stone-900">Note Pool</label>
+                      {/* Sharp Keys */}
+                      <NoteCheckboxGroup
+                        notes={["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"]}
+                        notePool={formOptions.notePool}
+                        onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                      />
+                      {/* White Keys */}
+                      <NoteCheckboxGroup
+                        notes={["C", "D", "E", "F", "G", "A", "B"]}
+                        notePool={formOptions.notePool}
+                        onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                      />
+                      {/* Flat Keys */}
+                      <NoteCheckboxGroup
+                        notes={["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"]}
+                        notePool={formOptions.notePool}
+                        onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                      />
+
+                      {/* Chord Type Pool */}
+                      <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
+                      <div className="grid grid-cols-[1fr_1fr_3fr]">
+                        {/* Simple Triads */}
+                        <ChordCheckboxGroup
+                          chords={[
+                            { value: "", display: "maj" },
+                            "m", "dim", "sus2", "sus4"
+                          ]}
+                          chordPool={formOptions.chordPool}
+                          onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                        />
+
+                        {/* 7th Chords */}
+                        <ChordCheckboxGroup
+                          chords={["maj7", "m7", "m7b5", "7", "°7"]}
+                          chordPool={formOptions.chordPool}
+                          onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                        />
+
+                        {/* Advanced Chords */}
+                        <ChordCheckboxGroup
+                          chords={[
+                            "6", "maj9", "maj13",
+                            "m9", "m11", "m6",
+                            "9", "13", "7sus4",
+                            "alt", "7b9", "7#11",
+                            "mMaj7", "13b9", "maj7#5"
+                          ]}
+                          chordPool={formOptions.chordPool}
+                          onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                          className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2"
+                        />
+
+                      </div>
+                    </form>
+                  </div>
+                </details>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
     </>
   );
 }
