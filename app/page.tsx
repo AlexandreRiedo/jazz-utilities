@@ -156,12 +156,14 @@ export default function Home() {
           <div className="absolute w-40 lg:w-screen h-20 bg-lime-300 right-0 lg:right-[10%] bottom-20"></div>
 
           {/* Main Chord Card Display */}
-          <div className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 p-4 min-h-96 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
-          lg:min-h-120">
+          <div className="relative flex flex-row flex-wrap items-center justify-center gap-8 gap-x-16 mx-4 p-4 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
+          min-h-96 lg:min-h-120">
             {chordList.map((chord, index) => {
               return (
-                <output key={index} className="text-center font-neobrutalist font-[450] text-8xl">
-                  <span className="block text-center font-normal text-6xl text-stone-600">
+                <output key={index} className="text-center font-neobrutalist font-[450] 
+                text-5xl lg:text-8xl">
+                  <span className="block text-center font-normal text-stone-600
+                  text-4xl lg:text-6xl">
                     {numberList[index]}</span>
                   {chord}</output>
               )
