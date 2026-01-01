@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export interface MetronomeSettings {
   tempo: number;
   timeSignature: { beats: number; noteValue: number };
-  measures: number;
+  measures: number; // The "Cycle" length
 }
 
 export interface MetronomeState {
@@ -12,100 +12,125 @@ export interface MetronomeState {
   currentMeasure: number;
 }
 
-// Play metronome sound
-function playMetronomeClick(isDownbeat: boolean) {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-  const oscillator = audioContext.createOscillator();
-  const gainNode = audioContext.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-
-  // Higher pitch for downbeat (first beat), lower for other beats
-  oscillator.frequency.value = isDownbeat ? 1000 : 800;
-  oscillator.type = 'sine';
-
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-  oscillator.start(audioContext.currentTime);
-  oscillator.stop(audioContext.currentTime + 0.1);
-}
+const LOOKAHEAD = 0.1;
+const SCHEDULE_INTERVAL = 25.0;
 
 export function useMetronome(onMeasureCycleComplete: () => void) {
   const [metronomeSettings, setMetronomeSettings] = useState<MetronomeSettings>({
     tempo: 120,
     timeSignature: { beats: 4, noteValue: 4 },
-    measures: 1
+    measures: 2 // Example: Change chords every 2 measures
   });
 
   const [metronomeState, setMetronomeState] = useState<MetronomeState>({
     isPlaying: false,
     currentBeat: 0,
-    currentMeasure: 0
+    currentMeasure: 0,
   });
 
-  // Metronome Logic - using accurate timing approach
-  useEffect(() => {
-    if (!metronomeState.isPlaying) return;
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const nextNoteTimeRef = useRef<number>(0);
+  const beatRef = useRef<number>(0);
+  const measureCountRef = useRef<number>(0); // Tracks progress through the cycle
+  const timerIdRef = useRef<number | null>(null);
 
-    const beatInterval = 60000 / metronomeSettings.tempo; // milliseconds per beat
-    const startTime = performance.now();
-    let expectedBeatTime = startTime + beatInterval;
-    let timeoutId: number;
-    
-    function tick() {
-      const currentTime = performance.now();
-      const timeTillNextBeat = expectedBeatTime - currentTime;
-      
-      // If we're close enough to the beat time (within 10ms), trigger the beat
-      if (timeTillNextBeat < 10) {
-        setMetronomeState(prev => {
-          const nextBeat = (prev.currentBeat + 1) % metronomeSettings.timeSignature.beats;
-          const nextMeasure = nextBeat === 0 ? prev.currentMeasure + 1 : prev.currentMeasure;
+  const scheduleNote = (beatNumber: number, measureNumber: number, time: number) => {
+    if (!audioCtxRef.current) return;
 
-          // Play click sound
-          playMetronomeClick(nextBeat === 0);
+    const osc = audioCtxRef.current.createOscillator();
+    const envelope = audioCtxRef.current.createGain();
 
-          // Trigger callback when completing the specified number of measures
-          if (nextMeasure > 0 && nextMeasure % metronomeSettings.measures === 0 && nextBeat === 0) {
-            onMeasureCycleComplete();
-          }
+    // Frequency logic (Pitch)
+    const isFirstBeatOfCycle = beatNumber === 0 && measureNumber === 0;
+    const isDownbeat = beatNumber === 0;
+    osc.frequency.value = isFirstBeatOfCycle ? 1000 : isDownbeat ? 800 : 600;
 
-          return {
-            ...prev,
-            currentBeat: nextBeat,
-            currentMeasure: nextMeasure
-          };
-        });
-        
-        // Schedule next beat
-        expectedBeatTime += beatInterval;
+    const peakGain = 0.3;
+
+    envelope.gain.setValueAtTime(0, time);
+    // Fast attack to keep it snappy
+    envelope.gain.linearRampToValueAtTime(peakGain, time + 0.002);
+    // Exponential decay for a natural "pluck" sound
+    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+
+    osc.connect(envelope);
+    envelope.connect(audioCtxRef.current.destination);
+
+    osc.start(time);
+    osc.stop(time + 0.1);
+
+    // Sync visual UI with Audio clock
+    const diff = (time - audioCtxRef.current.currentTime) * 1000;
+    setTimeout(() => {
+      setMetronomeState(prev => ({
+        ...prev,
+        currentBeat: beatNumber,
+        currentMeasure: measureNumber
+      }));
+    }, diff);
+  };
+
+  const scheduler = () => {
+    if (!audioCtxRef.current) return;
+
+    while (nextNoteTimeRef.current < audioCtxRef.current.currentTime + LOOKAHEAD) {
+      // 1. Schedule the current note
+      scheduleNote(beatRef.current, measureCountRef.current, nextNoteTimeRef.current);
+
+      // 2. Advance the clock
+      const secondsPerBeat = 60.0 / metronomeSettings.tempo;
+      nextNoteTimeRef.current += secondsPerBeat;
+
+      // 3. Advance Beat/Measure Logic
+      beatRef.current++;
+
+      // If we finished a measure
+      if (beatRef.current >= metronomeSettings.timeSignature.beats) {
+        beatRef.current = 0;
+        measureCountRef.current++;
+
+        // 4. Check if the full cycle (e.g., 4 measures) is complete
+        if (measureCountRef.current >= metronomeSettings.measures) {
+          measureCountRef.current = 0; // Reset measure count
+
+          // Trigger chord generation precisely when the next cycle starts
+          // We wrap this in a precise timeout to match the audio
+          const diff = (nextNoteTimeRef.current - audioCtxRef.current.currentTime) * 1000;
+          setTimeout(onMeasureCycleComplete, diff);
+        }
       }
-      
-      // Schedule next tick
-      timeoutId = window.setTimeout(tick, Math.min(expectedBeatTime - performance.now(), beatInterval));
     }
-    
-    // Start the first tick
-    tick();
+    timerIdRef.current = window.setTimeout(scheduler, SCHEDULE_INTERVAL);
+  };
 
-    return () => clearTimeout(timeoutId);
-  }, [metronomeState.isPlaying, metronomeSettings.tempo, metronomeSettings.timeSignature.beats, metronomeSettings.measures, onMeasureCycleComplete]);
+  const toggleMetronome = () => {
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
 
-  function toggleMetronome() {
-    setMetronomeState(prev => ({
-      ...prev,
-      isPlaying: !prev.isPlaying,
-      currentBeat: prev.isPlaying ? 0 : prev.currentBeat,
-      currentMeasure: prev.isPlaying ? 0 : prev.currentMeasure
-    }));
-  }
+    if (metronomeState.isPlaying) {
+      if (timerIdRef.current) clearTimeout(timerIdRef.current);
+      setMetronomeState(prev => ({ ...prev, isPlaying: false }));
+    } else {
+      beatRef.current = 0;
+      measureCountRef.current = 0;
+      nextNoteTimeRef.current = audioCtxRef.current.currentTime + 0.05;
+      setMetronomeState(prev => ({ ...prev, isPlaying: true }));
+      scheduler();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timerIdRef.current) clearTimeout(timerIdRef.current);
+      if (audioCtxRef.current) audioCtxRef.current.close();
+    };
+  }, []);
 
   return {
     metronomeSettings,
     setMetronomeSettings,
     metronomeState,
-    toggleMetronome
+    toggleMetronome,
   };
 }
