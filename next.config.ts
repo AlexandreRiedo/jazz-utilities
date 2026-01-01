@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
     unoptimized: true, // Required for static export
   },
   // Uncomment and set basePath if your repo is not at root (e.g., basePath: '/jazz-utilities')
-  // basePath: '/chord-utility',
+  basePath: '/jazz-utilities',
 };
 
 export default nextConfig;
