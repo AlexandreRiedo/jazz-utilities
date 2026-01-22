@@ -4,6 +4,7 @@ export interface MetronomeSettings {
   tempo: number;
   timeSignature: { beats: number; noteValue: number };
   measures: number; // The "Cycle" length
+  preventSwitching: boolean;
 }
 
 export interface MetronomeState {
@@ -19,7 +20,8 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
   const [metronomeSettings, setMetronomeSettings] = useState<MetronomeSettings>({
     tempo: 100,
     timeSignature: { beats: 4, noteValue: 4 },
-    measures: 4
+    measures: 4,
+    preventSwitching: false
   });
 
   const [metronomeState, setMetronomeState] = useState<MetronomeState>({
@@ -33,6 +35,17 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
   const beatRef = useRef<number>(0);
   const measureCountRef = useRef<number>(0); // Tracks progress through the cycle
   const timerIdRef = useRef<number | null>(null);
+  const settingsRef = useRef<MetronomeSettings>(metronomeSettings);
+  const onCycleCompleteRef = useRef(onMeasureCycleComplete);
+
+  // Keep refs in sync with latest values
+  useEffect(() => {
+    settingsRef.current = metronomeSettings;
+  }, [metronomeSettings]);
+
+  useEffect(() => {
+    onCycleCompleteRef.current = onMeasureCycleComplete;
+  }, [onMeasureCycleComplete]);
 
   const scheduleNote = (beatNumber: number, measureNumber: number, time: number) => {
     if (!audioCtxRef.current) return;
@@ -73,30 +86,34 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
   const scheduler = () => {
     if (!audioCtxRef.current) return;
 
+    const settings = settingsRef.current;
+
     while (nextNoteTimeRef.current < audioCtxRef.current.currentTime + LOOKAHEAD) {
       // 1. Schedule the current note
       scheduleNote(beatRef.current, measureCountRef.current, nextNoteTimeRef.current);
 
       // 2. Advance the clock
-      const secondsPerBeat = 60.0 / metronomeSettings.tempo;
+      const secondsPerBeat = 60.0 / settings.tempo;
       nextNoteTimeRef.current += secondsPerBeat;
 
       // 3. Advance Beat/Measure Logic
       beatRef.current++;
 
       // If we finished a measure
-      if (beatRef.current >= metronomeSettings.timeSignature.beats) {
+      if (beatRef.current >= settings.timeSignature.beats) {
         beatRef.current = 0;
         measureCountRef.current++;
 
         // 4. Check if the full cycle (e.g., 4 measures) is complete
-        if (measureCountRef.current >= metronomeSettings.measures) {
+        if (measureCountRef.current >= settings.measures) {
           measureCountRef.current = 0; // Reset measure count
 
           // Trigger chord generation precisely when the next cycle starts
           // We wrap this in a precise timeout to match the audio
-          const diff = (nextNoteTimeRef.current - audioCtxRef.current.currentTime) * 1000;
-          setTimeout(onMeasureCycleComplete, diff);
+          if (!settings.preventSwitching) {
+            const diff = (nextNoteTimeRef.current - audioCtxRef.current.currentTime) * 1000;
+            setTimeout(() => onCycleCompleteRef.current(), diff);
+          }
         }
       }
     }

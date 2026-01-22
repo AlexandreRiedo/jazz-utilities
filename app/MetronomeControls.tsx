@@ -48,24 +48,39 @@ export default function MetronomeControls({
         <option value="12/8">12/8</option>
       </select>
 
+      {/* Prevent Switching Measures */}
+      <div className="mb-6">
+        <label htmlFor="preventSwitchingCheckbox" className="block font-normal text-xl text-stone-900 cursor-pointer">Prevent Switching Chords</label>
+        <input
+          id="preventSwitchingCheckbox"
+          type="checkbox"
+          className="appearance-auto block border-2 size-5 accent-[#ff389c] cursor-pointer"
+          checked={metronomeSettings.preventSwitching}
+          onChange={e => setMetronomeSettings({ ...metronomeSettings, preventSwitching: e.target.checked })}
+        />
+      </div>
+
       {/* Measures Between Changes */}
-      <label htmlFor="measuresInput" className="block font-normal text-xl text-stone-900">Measures Between Chord Changes</label>
+      <label htmlFor="measuresInput" className={`block font-normal text-xl ${metronomeSettings.preventSwitching ? 'text-stone-400' : 'text-stone-900'}`}>Measures Between Chord Changes</label>
       <input
         id="measuresInput"
         type="number"
-        className="block w-full mb-6 px-4 py-1 border-2 border-[#7a3950] text-lg text-stone-700 bg-[#ffe0f0] focus:outline-0 focus:border-[#ff389c]"
+        className={`block w-full mb-6 px-4 py-1 border-2 text-lg focus:outline-0 ${metronomeSettings.preventSwitching ? 'border-stone-400 text-stone-400 bg-stone-200 cursor-not-allowed' : 'border-[#7a3950] text-stone-700 bg-[#ffe0f0] focus:border-[#ff389c]'}`}
         value={metronomeSettings.measures}
         onChange={e => setMetronomeSettings({ ...metronomeSettings, measures: parseInt(e.target.value) || 1 })}
         min={1}
         max={32}
+        disabled={metronomeSettings.preventSwitching}
       />
 
       {/* Beat Indicator */}
       {metronomeState.isPlaying && (
         <div className="mb-6">
-          <p className="text-sm font-normal text-stone-700 mb-2">
-            Measure {Math.floor(metronomeState.currentMeasure % metronomeSettings.measures) + 1} / {metronomeSettings.measures}
-          </p>
+          {!metronomeSettings.preventSwitching && (
+            <p className="text-sm font-normal text-stone-700 mb-2">
+              Measure {Math.floor(metronomeState.currentMeasure % metronomeSettings.measures) + 1} / {metronomeSettings.measures}
+            </p>
+          )}
           <div className="flex gap-2">
             {Array.from({ length: metronomeSettings.timeSignature.beats }).map((_, i) => (
               <div
