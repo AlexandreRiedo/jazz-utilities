@@ -21,7 +21,7 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
     tempo: 100,
     timeSignature: { beats: 4, noteValue: 4 },
     measures: 4,
-    preventSwitching: false
+    preventSwitching: true
   });
 
   const [metronomeState, setMetronomeState] = useState<MetronomeState>({
@@ -56,7 +56,13 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
     // Frequency logic (Pitch)
     const isFirstBeatOfCycle = beatNumber === 0 && measureNumber === 0;
     const isDownbeat = beatNumber === 0;
-    osc.frequency.value = isFirstBeatOfCycle ? 1000 : isDownbeat ? 800 : 600;
+    
+    // Use consistent pitch when prevent switching is enabled
+    if (settingsRef.current.preventSwitching) {
+      osc.frequency.value = isDownbeat ? 800 : 600;
+    } else {
+      osc.frequency.value = isFirstBeatOfCycle ? 1000 : isDownbeat ? 800 : 600;
+    }
 
     const peakGain = 0.3;
 
