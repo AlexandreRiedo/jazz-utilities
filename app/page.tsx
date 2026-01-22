@@ -76,7 +76,7 @@ export default function Home() {
         lg:grid lg:grid-cols-[1fr_auto_auto] lg:gap-8 lg:items-start">
 
             {/* Randomize Button */}
-            <div onClick={triggerRandomGeneration} className="relative flex flex-col justify-end py-8 w-full mt-16 px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]
+            <div onClick={triggerRandomGeneration} className="relative flex flex-col justify-end py-8 w-full mt-8  px-4 border-y-0 border-[#7e4651] bg-[#ffa7b6]
           lg:my-0 lg:bg-transparent">
               <button className="px-8 py-2 bg-[#ff3859] border-2 border-stone-900 font-neobrutalist font-[450] text-[1.75rem] text-stone-900/90 shadow-[8px_8px_var(--color-stone-900)]
             hover:bg-[#ffa2b1] active:translate-2 active:shadow-none transition-all duration-75 cursor-pointer
