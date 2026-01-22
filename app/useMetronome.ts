@@ -17,9 +17,9 @@ const SCHEDULE_INTERVAL = 25.0;
 
 export function useMetronome(onMeasureCycleComplete: () => void) {
   const [metronomeSettings, setMetronomeSettings] = useState<MetronomeSettings>({
-    tempo: 120,
+    tempo: 100,
     timeSignature: { beats: 4, noteValue: 4 },
-    measures: 2 // Example: Change chords every 2 measures
+    measures: 4
   });
 
   const [metronomeState, setMetronomeState] = useState<MetronomeState>({

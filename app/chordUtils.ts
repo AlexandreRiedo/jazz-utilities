@@ -90,8 +90,8 @@ export function generateRandomTargetTone(chordQuality: string) {
   }
 }
 
-export function mainRandomGenerate({ numberOfNotes, notePool, chordPool }: { numberOfNotes: number, notePool: Set<string>, chordPool: Set<string>, }) {
-  const notePoolArray = Array.from(notePool);
+export function mainRandomGenerate({ numberOfNotes, notePool, chordPool, allowRootDuplication }: { numberOfNotes: number, notePool: Set<string>, chordPool: Set<string>, allowRootDuplication: boolean }) {
+  let notePoolArray = Array.from(notePool);
   const chordQuality = Array.from(chordPool);
   const showNumberList = true;
   const chordListResult = [];
@@ -104,6 +104,11 @@ export function mainRandomGenerate({ numberOfNotes, notePool, chordPool }: { num
 
     targetToneListResult.push(generateRandomTargetTone(extension));
     chordListResult.push(rawChord);
+
+    if (!allowRootDuplication) {
+      notePoolArray.splice(notePoolArray.indexOf(note), 1);
+      if (notePoolArray.length === 0) notePoolArray = Array.from(notePool);
+    }
   }
 
   if (showNumberList) {

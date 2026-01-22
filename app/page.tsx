@@ -13,7 +13,8 @@ export default function Home() {
   const [formOptions, setFormOptions] = useState({
     numberOfNotes: 8,
     notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
-    chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"])
+    chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"]),
+    allowRootDuplication: false,
   })
 
   function triggerRandomGeneration() {
@@ -29,7 +30,7 @@ export default function Home() {
     const resultGeneration = mainRandomGenerate(formOptions);
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
-  }, [formOptions.numberOfNotes, formOptions.notePool, formOptions.chordPool]);
+  }, [formOptions.numberOfNotes, formOptions.notePool, formOptions.chordPool, formOptions.allowRootDuplication]);
 
   return (
     <>
@@ -37,11 +38,11 @@ export default function Home() {
         <main className="grid grid-rows-[1fr_auto] h-screen
       lg:w-full lg:flex lg:flex-col lg:justify-center lg:items-center lg:h-auto lg:overflow-x-clip">
           {/* Chord Display */}
-          <section className="mt-24 relative self-center flex flex-col justify-center
-        lg:w-230 xl:w-300 lg:mx-auto">
+          <section className="mt-12 relative self-center flex flex-col justify-center
+        lg:w-230 xl:w-300 lg:mx-auto lg:mt-24">
             {/* Branding */}
             <header className="absolute z-20 top-[-5%] left-[50%] lg:left-[60%] px-8 py-2 lg:px-24 lg:py-2 text-lg lg:text-2xl border-3 font-semibold border-stone-950 font-neobrutalist text-white bg-stone-800 ">
-              <span>Jazz Utilities 0.2</span>
+              <span>Jazz Utilities 0.3</span>
             </header>
 
             {/* Decoration */}
@@ -52,7 +53,7 @@ export default function Home() {
 
             {/* Main Chord Card Display */}
             <div className="relative grid grid-cols-2 gap-y-12 place-content-center mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
-          min-h-96 lg:min-h-[75vh]
+          min-h-96 lg:min-h-[75vh] lg:pb-16
           lg:grid-cols-4 lg:gap-y-24">
               {chordList.map((chord, index) => {
                 console.log(index);
@@ -63,7 +64,7 @@ export default function Home() {
                   text-3xl lg:text-4xl">
                       {numberList[index]}</span>
                     {chord}</output>
-                  
+
                 )
               })}
             </div>
@@ -146,6 +147,13 @@ export default function Home() {
                         onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
                       />
 
+                      {/* Allow Root Duplication */}
+                      <label htmlFor="allowRootDuplicationInput" className="mt-8 block font-normal text-xl text-stone-900">Allow root note duplicates</label>
+                      <input id="allowRootDuplicationInput" type="checkbox" className="rootDuplication-checkbox"
+                      checked={formOptions.allowRootDuplication}
+                      onChange={e => setFormOptions({ ...formOptions, allowRootDuplication: e.target.checked })}
+                      ></input>
+
                       {/* Chord Type Pool */}
                       <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
                       <div className="grid grid-cols-[1fr_1fr_3fr]">
@@ -181,7 +189,9 @@ export default function Home() {
                         />
 
                       </div>
+
                     </form>
+
                   </div>
                 </details>
               </div>
