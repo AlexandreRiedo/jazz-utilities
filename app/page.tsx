@@ -11,7 +11,7 @@ export default function Home() {
   const [numberList, setNumberList] = useState(["maj7", "13"]);
 
   const [formOptions, setFormOptions] = useState({
-    numberOfNotes: 8,
+    numberOfNotes: typeof window !== 'undefined' && window.innerWidth < 1024 ? 4 : 8,
     notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
     chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"]),
     allowRootDuplication: false,

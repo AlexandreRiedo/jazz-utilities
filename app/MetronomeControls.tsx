@@ -22,8 +22,8 @@ export default function MetronomeControls({
         type="number"
         className="block w-full mb-6 px-4 py-1 border-2 border-[#7a3950] text-lg text-stone-700 bg-[#ffe0f0] focus:outline-0 focus:border-[#ff389c]"
         value={metronomeSettings.tempo}
-        onChange={e => setMetronomeSettings({ ...metronomeSettings, tempo: parseInt(e.target.value) || 60 })}
-        min={40}
+        onChange={e => setMetronomeSettings({ ...metronomeSettings, tempo: parseInt(e.target.value) })}
+        min={0}
         max={300}
       />
 
