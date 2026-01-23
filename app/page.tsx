@@ -52,11 +52,11 @@ export default function Home() {
             <div className="absolute w-40 lg:w-screen h-20 bg-lime-300 right-0 lg:right-[10%] bottom-20"></div>
 
             {/* Main Chord Card Display */}
-            <div className="relative grid grid-cols-2 gap-y-12 place-content-center mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
-          min-h-96 lg:min-h-[75vh] lg:pb-16
+            <div className="relative grid grid-cols-2 gap-y-8 place-content-center mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
+          min-h-96 lg:min-h-[75vh] lg:pb-12
+          sm:grid-cols-4
           lg:grid-cols-4 lg:gap-y-24">
               {chordList.map((chord, index) => {
-                console.log(index);
                 return (
                   <output key={index} className="text-center font-neobrutalist font-[450] 
                 text-4xl lg:text-6xl">
