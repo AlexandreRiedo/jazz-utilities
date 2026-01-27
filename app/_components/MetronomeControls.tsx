@@ -1,4 +1,4 @@
-import { MetronomeSettings, MetronomeState } from './useMetronome';
+import { MetronomeSettings, MetronomeState } from '../_lib/useMetronome';
 
 interface MetronomeControlsProps {
   metronomeSettings: MetronomeSettings;

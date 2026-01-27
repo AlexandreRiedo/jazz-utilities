@@ -1,6 +1,5 @@
 # IDEAS
-##
-- Sync with localstorage
+## RANDOM SEQUENCE GENERATOR
 
 ## RANDOM CHORD GENERATOR
 - Chord Type Form
