@@ -12,9 +12,16 @@ export default function Home() {
   // The UI chords and tones, and also the random sequence
   const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
   const [numberList, setNumberList] = useState(["maj7", "13"]);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Use the default options, or the one stored in local storage
   const [formOptions, setFormOptions] = useState(getInitialFormOptions)
+  
+  // Set mounted state after hydration to prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  
   // Store in local storage on formOptions Changes
   // NB: Make sure that sets are converted to Arrays !
   useEffect(() => {
@@ -206,7 +213,7 @@ export default function Home() {
 
                       {/* Random Sequence Options Section */}
                       <section>
-                        <h1 className="mt-16 mb-3 font-medium text-4xl leading-8">Random Sequence Options</h1>
+                        <h1 className="mt-16 mb-3 font-medium text-4xl leading-8">Random Sequence</h1>
 
                         {/* Enable Random Sequence */}
                         <label htmlFor="enableRandomSequenceInput" className="block font-normal text-xl text-stone-900">Enable random sequence generation</label>
@@ -216,12 +223,12 @@ export default function Home() {
                         ></input>
 
                         {/* Sequence Pool Selector */}
-                        <label data-disabled={!formOptions.enableRandomSequence} className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Sequence Pool Selector</label>
+                        <label data-disabled={isMounted && !formOptions.enableRandomSequence} className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Sequence Pool Selector</label>
                         <SequenceCheckboxGroup
                           sequences={["1", "b2", "2", "b3", "3", "4", "#4", "5", "b6", "6", "7", "maj7"]}
                           sequencePool={formOptions.sequencePool}
                           onSequencePoolChange={newSequencePool => setFormOptions({ ...formOptions, sequencePool: newSequencePool })}
-                          disabled={!formOptions.enableRandomSequence}
+                          disabled={isMounted && !formOptions.enableRandomSequence}
                         />
                       </section>
 

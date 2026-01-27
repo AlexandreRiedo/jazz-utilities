@@ -1,4 +1,4 @@
-function SequenceCheckboxGroup({ sequences, sequencePool, onSequencePoolChange, disabled = false }: {
+function SequenceCheckboxGroup({ sequences, sequencePool, onSequencePoolChange, disabled }: {
   sequences: string[];
   sequencePool: Set<string>;
   onSequencePoolChange: (newSequencePool: Set<string>) => void;

@@ -4,7 +4,7 @@ function NoteCheckboxGroup({ notes, notePool, onNotePoolChange }: {
   onNotePoolChange: (newNotePool: Set<string>) => void;
 }) {
   return (
-    <fieldset className="flex flex-row gap-2 my-2">
+    <fieldset className="flex flex-row justify-between gap-2 my-2">
       {notes.map(item => (
         <label key={item} className="note-label">
           <span>{item}</span>
