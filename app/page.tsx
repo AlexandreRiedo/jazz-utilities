@@ -62,7 +62,7 @@ export default function Home() {
         lg:w-230 xl:w-300 lg:mx-auto lg:mt-24">
             {/* Branding */}
             <header className="absolute z-20 top-[-5%] left-[50%] lg:left-[60%] px-8 py-2 lg:px-24 lg:py-2 text-lg lg:text-2xl border-3 font-semibold border-stone-950 font-neobrutalist text-white bg-stone-800 ">
-              <span>Jazz Utilities 0.3</span>
+              <span>Jazz Utilities 0.4</span>
             </header>
 
             {/* Decoration */}
