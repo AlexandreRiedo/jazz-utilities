@@ -126,7 +126,7 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
         {/* Number Of Sequences */}
         <label data-disabled={isMounted && !formOptions.enableRandomSequence} htmlFor="numberOfSequencesInput" className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Number of Sequence Items</label>
         <input id="numberOfSequencesInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053] disabled:opacity-40"
-          value={formOptions.numberOfSequences || ''}
+          value={formOptions.numberOfSequences || 8}
           onChange={e => {
             const val = parseInt(e.target.value) || 0;
             setFormOptions({ ...formOptions, numberOfSequences: val });
