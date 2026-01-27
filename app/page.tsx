@@ -7,6 +7,7 @@ import ChordCheckboxGroup from './_components/ChordCheckboxGroup';
 import { useMetronome } from './_lib/useMetronome';
 import MetronomeControls from './_components/MetronomeControls';
 import { getInitialFormOptions } from './_lib/storageUtils';
+import { getDefaultFormOptions } from './_lib/storageUtils';
 import SequenceCheckboxGroup from "./_components/SequenceCheckboxGroup";
 
 export default function Home() {
@@ -110,8 +111,8 @@ export default function Home() {
                   })}
                 </div>
               </>
-              : null}
-              
+                : null}
+
 
             </section>
           </section>
@@ -170,7 +171,7 @@ export default function Home() {
                         {/* Number Of Notes */}
                         <label htmlFor="noteNumberInput" className="block font-normal text-xl text-stone-900">Number of Notes</label>
                         <input id="noteNumberInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
-                          value={formOptions.numberOfNotes || ''} 
+                          value={formOptions.numberOfNotes || ''}
                           onChange={e => {
                             const val = parseInt(e.target.value) || 0;
                             setFormOptions({ ...formOptions, numberOfNotes: val });
@@ -267,7 +268,7 @@ export default function Home() {
                         {/* Number Of Sequences */}
                         <label data-disabled={isMounted && !formOptions.enableRandomSequence} htmlFor="numberOfSequencesInput" className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Number of Sequence Items</label>
                         <input id="numberOfSequencesInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053] disabled:opacity-40"
-                          value={formOptions.numberOfSequences || ''} 
+                          value={formOptions.numberOfSequences || ''}
                           onChange={e => {
                             const val = parseInt(e.target.value) || 0;
                             setFormOptions({ ...formOptions, numberOfSequences: val });
@@ -288,6 +289,17 @@ export default function Home() {
                           onChange={e => setFormOptions({ ...formOptions, allowSequenceDuplication: e.target.checked })}
                           disabled={isMounted && !formOptions.enableRandomSequence}
                         ></input>
+                      </section>
+
+
+                      {/* Presets & Storage Settings */}
+                      <section>
+                        <h1 className="mt-16 mb-3 font-medium text-4xl leading-8">Presets & Storage</h1>
+
+                        <button className="w-full border-2 px-4 py-1 font-normal text-xl bg-[#ffc053] hover:bg-[hsl(30,100%,86%)] shadow-[4px_4px_var(--color-stone-900)] 
+                        active:translate-1 active:shadow-none transition-all"
+                        onClick={() => setFormOptions(getDefaultFormOptions())}>Apply Default Preset</button>
+
                       </section>
 
                     </form>
