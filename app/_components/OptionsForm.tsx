@@ -21,6 +21,39 @@ interface OptionsFormProps {
 }
 
 export default function OptionsForm({ formOptions, setFormOptions, isMounted }: OptionsFormProps) {
+
+  // Save/Load handlers for 3 presets
+  function handleSavePreset(presetKey: string) {
+    try {
+      const presetToSave = {
+        ...formOptions,
+        notePool: Array.from(formOptions.notePool),
+        chordPool: Array.from(formOptions.chordPool),
+        sequencePool: Array.from(formOptions.sequencePool),
+      };
+      localStorage.setItem(presetKey, JSON.stringify(presetToSave));
+    } catch (e) {
+      alert('Failed to save preset.');
+    }
+  }
+  function handleLoadPreset(presetKey: string) {
+    try {
+      const presetStr = localStorage.getItem(presetKey);
+      if (!presetStr) {
+        return;
+      }
+      const parsed = JSON.parse(presetStr);
+      setFormOptions({
+        ...parsed,
+        notePool: new Set(parsed.notePool),
+        chordPool: new Set(parsed.chordPool),
+        sequencePool: new Set(parsed.sequencePool),
+      });
+    } catch (e) {
+      alert('Failed to load preset.');
+    }
+  }
+
   return (
     <form className="leading-0" onSubmit={e => e.preventDefault()}>
       {/* Chord Option Section */}
@@ -154,10 +187,45 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
       <section>
         <h1 className="mt-16 mb-3 font-medium text-4xl leading-8">Presets & Storage</h1>
 
-        <button className="w-full border-2 px-4 py-1 font-normal text-xl bg-[#ffc053] hover:bg-[hsl(30,100%,86%)] shadow-[4px_4px_var(--color-stone-900)] 
-                        active:translate-1 active:shadow-none transition-all"
-          onClick={() => setFormOptions(getDefaultFormOptions())}>Apply Default Preset</button>
-
+        <div className="flex flex-col gap-3">
+          <button
+            type="button"
+            className="w-full border-2 px-4 py-1 font-normal text-xl bg-[#ffc053] hover:bg-[hsl(30,100%,86%)] shadow-[4px_4px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+            onClick={() => setFormOptions(getDefaultFormOptions())}
+          >Apply Default Preset</button>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <button
+              type="button"
+              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffe18a] hover:bg-[hsl(30,100%,92%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+              onClick={() => handleSavePreset('jazzPresetA')}
+            >Save Preset A</button>
+            <button
+              type="button"
+              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+              onClick={() => handleLoadPreset('jazzPresetA')}
+            >Load Preset A</button>
+            <button
+              type="button"
+              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffe18a] hover:bg-[hsl(30,100%,92%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+              onClick={() => handleSavePreset('jazzPresetB')}
+            >Save Preset B</button>
+            <button
+              type="button"
+              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+              onClick={() => handleLoadPreset('jazzPresetB')}
+            >Load Preset B</button>
+            <button
+              type="button"
+              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffe18a] hover:bg-[hsl(30,100%,92%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+              onClick={() => handleSavePreset('jazzPresetC')}
+            >Save Preset C</button>
+            <button
+              type="button"
+              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+              onClick={() => handleLoadPreset('jazzPresetC')}
+            >Load Preset C</button>
+          </div>
+        </div>
       </section>
 
     </form>

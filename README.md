@@ -1,9 +1,9 @@
 # IDEAS
-## RANDOM SEQUENCE GENERATOR
-- Add a reset to default button at the bottom
+## PRESETS
+- Add 3 slots for custom LS presets
 
 ## RANDOM CHORD GENERATOR
-- Display Chord Type
+- Display Chord Type (Not Really Needed...)
 - Display Guide Tones
 - Guide Tone Picker
 
