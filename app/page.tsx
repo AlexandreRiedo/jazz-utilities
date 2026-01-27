@@ -10,8 +10,8 @@ import SequenceCheckboxGroup from "./_components/SequenceCheckboxGroup";
 
 export default function Home() {
   // The UI chords and tones, and also the random sequence
-  const [chordList, setChordList] = useState([]);
-  const [numberList, setNumberList] = useState([]);
+  const [chordList, setChordList] = useState<string[]>([]);
+  const [numberList, setNumberList] = useState<string[]>([]);
   const [sequenceList, setSequenceList] = useState(["1", "2", "3", "4", "5", "6", "maj7"]);
   const [isMounted, setIsMounted] = useState(false);
 
