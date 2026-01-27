@@ -10,18 +10,19 @@ import SequenceCheckboxGroup from "./_components/SequenceCheckboxGroup";
 
 export default function Home() {
   // The UI chords and tones, and also the random sequence
-  const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
-  const [numberList, setNumberList] = useState(["maj7", "13"]);
+  const [chordList, setChordList] = useState([]);
+  const [numberList, setNumberList] = useState([]);
+  const [sequenceList, setSequenceList] = useState(["1", "2", "3", "4", "5", "6", "maj7"]);
   const [isMounted, setIsMounted] = useState(false);
 
   // Use the default options, or the one stored in local storage
   const [formOptions, setFormOptions] = useState(getInitialFormOptions)
-  
+
   // Set mounted state after hydration to prevent hydration mismatch
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  
+
   // Store in local storage on formOptions Changes
   // NB: Make sure that sets are converted to Arrays !
   useEffect(() => {
@@ -72,22 +73,26 @@ export default function Home() {
             <div className="absolute w-40 lg:w-screen h-20 bg-lime-300 right-0 lg:right-[10%] bottom-20"></div>
 
             {/* Main Chord Card Display */}
-            <div className="relative grid grid-cols-2 gap-y-8 place-content-center mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
-          min-h-96 lg:min-h-[75vh] lg:pb-16
-          sm:grid-cols-4
-          lg:grid-cols-4 lg:gap-y-24">
-              {chordList.map((chord, index) => {
-                return (
-                  <output key={index} className="text-center font-neobrutalist font-[450] 
-                text-4xl lg:text-6xl">
-                    <span className="block text-center font-normal text-stone-600
-                  text-3xl lg:text-4xl">
-                      {numberList[index]}</span>
-                    {chord}</output>
+            <section className="relative flex mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900 bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
+            min-h-96 lg:min-h-[75vh] lg:pb-16">
 
-                )
-              })}
-            </div>
+              {/* Chord Grid */}
+              <div className="grid grid-cols-2 gap-y-8 place-content-center flex-1
+              sm:grid-cols-4
+              lg:grid-cols-4 lg:gap-y-24">
+                {chordList.map((chord, index) => {
+                  return (
+                    <output key={index} className="text-center font-neobrutalist font-[450] 
+                text-4xl lg:text-6xl">
+                      <span className="block text-center font-normal text-stone-600
+                  text-3xl lg:text-4xl">
+                        {numberList[index]}</span>
+                      {chord}</output>
+
+                  )
+                })}
+              </div>
+            </section>
           </section>
 
           {/* Form Options */}
