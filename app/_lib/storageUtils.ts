@@ -3,6 +3,7 @@ export interface FormOptions {
   notePool: Set<string>;
   chordPool: Set<string>;
   allowRootDuplication: boolean;
+  showGuideToneDisplay: boolean;
   enableRandomSequence: boolean;
   numberOfSequences: number;
   sequencePool: Set<string>;
@@ -15,6 +16,7 @@ export function getDefaultFormOptions(): FormOptions {
     notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
     chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"]),
     allowRootDuplication: false,
+    showGuideToneDisplay: true,
     enableRandomSequence: false,
     numberOfSequences: 8,
     sequencePool: new Set(["1", "2", "3", "4", "5", "6", "△7"]),

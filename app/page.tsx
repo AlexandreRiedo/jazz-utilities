@@ -83,9 +83,11 @@ export default function Home() {
                   return (
                     <output key={index} className="text-center font-neobrutalist font-[450] 
                 text-4xl lg:text-6xl">
-                      <span className="block text-center font-normal text-stone-600
+                      {isMounted && formOptions.showGuideToneDisplay ? (
+                        <span id="guideToneDisplay" className="block text-center font-normal text-stone-600
                   text-3xl lg:text-4xl">
-                        {numberList[index]}</span>
+                          {numberList[index]}</span>
+                      ) : null}
                       {chord}</output>
 
                   )

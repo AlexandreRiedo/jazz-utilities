@@ -7,6 +7,7 @@ interface FormOptions {
   numberOfNotes: number;
   notePool: Set<string>;
   allowRootDuplication: boolean;
+  showGuideToneDisplay: boolean;
   chordPool: Set<string>;
   enableRandomSequence: boolean;
   sequencePool: Set<string>;
@@ -100,6 +101,13 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
         <input id="allowRootDuplicationInput" type="checkbox" className="rootDuplication-checkbox"
           checked={formOptions.allowRootDuplication}
           onChange={e => setFormOptions({ ...formOptions, allowRootDuplication: e.target.checked })}
+        ></input>
+
+        {/* Show Guide Tone Display */}
+        <label htmlFor="guideToneDisplayInput" className="mt-4 block font-normal text-xl text-stone-900">Show guide tone display</label>
+        <input id="guideToneDisplayInput" type="checkbox" className="rootDuplication-checkbox"
+          checked={formOptions.showGuideToneDisplay}
+          onChange={e => setFormOptions({ ...formOptions, showGuideToneDisplay: e.target.checked })}
         ></input>
 
         {/* Chord Type Pool */}
