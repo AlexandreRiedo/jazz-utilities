@@ -6,8 +6,10 @@ import ChordCheckboxGroup from './_components/ChordCheckboxGroup';
 import { useMetronome } from './_lib/useMetronome';
 import MetronomeControls from './_components/MetronomeControls';
 import { getInitialFormOptions } from './_lib/storageUtils';
+import SequenceCheckboxGroup from "./_components/SequenceCheckboxGroup";
 
 export default function Home() {
+  // The UI chords and tones, and also the random sequence
   const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
   const [numberList, setNumberList] = useState(["maj7", "13"]);
 
@@ -20,6 +22,7 @@ export default function Home() {
       ...formOptions,
       notePool: Array.from(formOptions.notePool),
       chordPool: Array.from(formOptions.chordPool),
+      sequencePool: Array.from(formOptions.sequencePool),
     };
     localStorage.setItem("formOptionsStorage", JSON.stringify(formOptionsArrayEdit));
   }, [formOptions])
@@ -128,80 +131,101 @@ export default function Home() {
                   {/* Form Content */}
                   <div className="min-h-64 px-6 py-6  bg-[#fff7da]">
                     <form className="leading-0" onSubmit={e => e.preventDefault()}>
-                      {/* Number Of Notes */}
-                      <label htmlFor="noteNumberInput" className="block font-normal text-xl text-stone-900">Number of Notes</label>
-                      <input id="noteNumberInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
-                        value={formOptions.numberOfNotes} onChange={e => {
-                          setFormOptions({ ...formOptions, numberOfNotes: (parseInt(e.target.value) || 0) });
-                        }}
-                        min={1}></input>
+                      {/* Chord Option Section */}
+                      <section>
+                        <h1 className="mb-3 mt-4 font-medium text-4xl leading-8">Chord and Note Pool</h1>
+                        {/* Number Of Notes */}
+                        <label htmlFor="noteNumberInput" className="block font-normal text-xl text-stone-900">Number of Notes</label>
+                        <input id="noteNumberInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
+                          value={formOptions.numberOfNotes} onChange={e => {
+                            setFormOptions({ ...formOptions, numberOfNotes: (parseInt(e.target.value) || 0) });
+                          }}
+                          min={1}></input>
 
-                      {/* Note Pool */}
-                      <label className="block font-normal text-xl text-stone-900">Note Pool</label>
-                      {/* Sharp Keys */}
-                      <NoteCheckboxGroup
-                        notes={["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"]}
-                        notePool={formOptions.notePool}
-                        onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-                      />
-                      {/* White Keys */}
-                      <NoteCheckboxGroup
-                        notes={["C", "D", "E", "F", "G", "A", "B"]}
-                        notePool={formOptions.notePool}
-                        onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-                      />
-                      {/* Flat Keys */}
-                      <NoteCheckboxGroup
-                        notes={["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"]}
-                        notePool={formOptions.notePool}
-                        onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-                      />
-
-                      {/* Allow Root Duplication */}
-                      <label htmlFor="allowRootDuplicationInput" className="mt-8 block font-normal text-xl text-stone-900">Allow root note duplicates</label>
-                      <input id="allowRootDuplicationInput" type="checkbox" className="rootDuplication-checkbox"
-                        checked={formOptions.allowRootDuplication}
-                        onChange={e => setFormOptions({ ...formOptions, allowRootDuplication: e.target.checked })}
-                      ></input>
-
-                      {/* Chord Type Pool */}
-                      <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
-                      <div className="grid grid-cols-[1fr_1fr_3fr]">
-                        {/* Simple Triads */}
-                        <ChordCheckboxGroup
-                          chords={[
-                            { value: "", display: "maj" },
-                            "m", "dim", "sus2", "sus4"
-                          ]}
-                          chordPool={formOptions.chordPool}
-                          onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                        {/* Note Pool */}
+                        <label className="block font-normal text-xl text-stone-900">Note Pool</label>
+                        {/* Sharp Keys */}
+                        <NoteCheckboxGroup
+                          notes={["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"]}
+                          notePool={formOptions.notePool}
+                          onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                        />
+                        {/* White Keys */}
+                        <NoteCheckboxGroup
+                          notes={["C", "D", "E", "F", "G", "A", "B"]}
+                          notePool={formOptions.notePool}
+                          onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+                        />
+                        {/* Flat Keys */}
+                        <NoteCheckboxGroup
+                          notes={["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"]}
+                          notePool={formOptions.notePool}
+                          onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
                         />
 
-                        {/* 7th Chords */}
-                        <ChordCheckboxGroup
-                          chords={["maj7", "m7", "m7b5", "7", "°7"]}
-                          chordPool={formOptions.chordPool}
-                          onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
-                        />
+                        {/* Allow Root Duplication */}
+                        <label htmlFor="allowRootDuplicationInput" className="mt-8 block font-normal text-xl text-stone-900">Allow root note duplicates</label>
+                        <input id="allowRootDuplicationInput" type="checkbox" className="rootDuplication-checkbox"
+                          checked={formOptions.allowRootDuplication}
+                          onChange={e => setFormOptions({ ...formOptions, allowRootDuplication: e.target.checked })}
+                        ></input>
 
-                        {/* Advanced Chords */}
-                        <ChordCheckboxGroup
-                          chords={[
-                            "6", "maj9", "maj13",
-                            "m9", "m11", "m6",
-                            "9", "13", "7sus4",
-                            "alt", "7b9", "7#11",
-                            "mMaj7", "13b9", "maj7#5"
-                          ]}
-                          chordPool={formOptions.chordPool}
-                          onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
-                          className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2"
-                        />
+                        {/* Chord Type Pool */}
+                        <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
+                        <div className="grid grid-cols-[1fr_1fr_3fr]">
+                          {/* Simple Triads */}
+                          <ChordCheckboxGroup
+                            chords={[
+                              { value: "", display: "maj" },
+                              "m", "dim", "sus2", "sus4"
+                            ]}
+                            chordPool={formOptions.chordPool}
+                            onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                          />
+                          {/* 7th Chords */}
+                          <ChordCheckboxGroup
+                            chords={["maj7", "m7", "m7b5", "7", "°7"]}
+                            chordPool={formOptions.chordPool}
+                            onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                          />
+                          {/* Advanced Chords */}
+                          <ChordCheckboxGroup
+                            chords={[
+                              "6", "maj9", "maj13",
+                              "m9", "m11", "m6",
+                              "9", "13", "7sus4",
+                              "alt", "7b9", "7#11",
+                              "mMaj7", "13b9", "maj7#5"
+                            ]}
+                            chordPool={formOptions.chordPool}
+                            onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+                            className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2"
+                          />
+                        </div>
+                      </section>
 
-                      </div>
+                      {/* Random Sequence Options Section */}
+                      <section>
+                        <h1 className="mt-16 mb-3 font-medium text-4xl leading-8">Random Sequence Options</h1>
+
+                        {/* Enable Random Sequence */}
+                        <label htmlFor="enableRandomSequenceInput" className="block font-normal text-xl text-stone-900">Enable random sequence generation</label>
+                        <input id="enableRandomSequenceInput" type="checkbox" className="rootDuplication-checkbox"
+                          checked={formOptions.enableRandomSequence}
+                          onChange={e => setFormOptions({ ...formOptions, enableRandomSequence: e.target.checked })}
+                        ></input>
+
+                        {/* Sequence Pool Selector */}
+                        <label data-disabled={!formOptions.enableRandomSequence} className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Sequence Pool Selector</label>
+                        <SequenceCheckboxGroup
+                          sequences={["1", "b2", "2", "b3", "3", "4", "#4", "5", "b6", "6", "7", "maj7"]}
+                          sequencePool={formOptions.sequencePool}
+                          onSequencePoolChange={newSequencePool => setFormOptions({ ...formOptions, sequencePool: newSequencePool })}
+                          disabled={!formOptions.enableRandomSequence}
+                        />
+                      </section>
 
                     </form>
-
                   </div>
                 </details>
               </div>

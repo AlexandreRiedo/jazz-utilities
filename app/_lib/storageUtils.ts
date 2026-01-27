@@ -3,6 +3,8 @@ export interface FormOptions {
   notePool: Set<string>;
   chordPool: Set<string>;
   allowRootDuplication: boolean;
+  enableRandomSequence: boolean;
+  sequencePool: Set<string>;
 }
 
 export function getInitialFormOptions(): FormOptions {
@@ -11,6 +13,8 @@ export function getInitialFormOptions(): FormOptions {
     notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
     chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"]),
     allowRootDuplication: false,
+    enableRandomSequence: false,
+    sequencePool: new Set(["1", "2", "3", "4", "5", "6", "maj7"]),
   };
 
   if (typeof window !== 'undefined') {
@@ -23,6 +27,7 @@ export function getInitialFormOptions(): FormOptions {
           ...parsed,
           notePool: new Set(parsed.notePool),
           chordPool: new Set(parsed.chordPool),
+          sequencePool: new Set(parsed.sequencePool),
         };
       } catch (error) {
         console.error("Failed to parse stored form options:", error);
