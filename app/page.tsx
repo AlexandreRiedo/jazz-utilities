@@ -1,28 +1,37 @@
 "use client"
 import { useEffect, useState } from "react";
-import { mainRandomGenerate } from './chordUtils';
-import NoteCheckboxGroup from './NoteCheckboxGroup';
-import ChordCheckboxGroup from './ChordCheckboxGroup';
-import { useMetronome } from './useMetronome';
-import MetronomeControls from './MetronomeControls';
+import { mainRandomGenerate } from './_lib/chordUtils';
+import NoteCheckboxGroup from './_components/NoteCheckboxGroup';
+import ChordCheckboxGroup from './_components/ChordCheckboxGroup';
+import { useMetronome } from './_lib/useMetronome';
+import MetronomeControls from './_components/MetronomeControls';
+import { getInitialFormOptions } from './_lib/storageUtils';
 
 export default function Home() {
   const [chordList, setChordList] = useState(["D∆♯11", "E♭9"]);
   const [numberList, setNumberList] = useState(["maj7", "13"]);
 
-  const [formOptions, setFormOptions] = useState({
-    numberOfNotes: typeof window !== 'undefined' && window.innerWidth < 1024 ? 4 : 8,
-    notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
-    chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"]),
-    allowRootDuplication: false,
-  })
+  // Use the default options, or the one stored in local storage
+  const [formOptions, setFormOptions] = useState(getInitialFormOptions)
+  // Store in local storage on formOptions Changes
+  // NB: Make sure that sets are converted to Arrays !
+  useEffect(() => {
+    const formOptionsArrayEdit = {
+      ...formOptions,
+      notePool: Array.from(formOptions.notePool),
+      chordPool: Array.from(formOptions.chordPool),
+    };
+    localStorage.setItem("formOptionsStorage", JSON.stringify(formOptionsArrayEdit));
+  }, [formOptions])
 
+  // Random Generation
   function triggerRandomGeneration() {
     const resultGeneration = mainRandomGenerate(formOptions);
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
   }
 
+  // Metronome Stuff
   const { metronomeSettings, setMetronomeSettings, metronomeState, toggleMetronome } = useMetronome(triggerRandomGeneration);
 
   // Update Shown Notes Based On Changes in formOptions
@@ -31,6 +40,7 @@ export default function Home() {
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
   }, [formOptions.numberOfNotes, formOptions.notePool, formOptions.chordPool, formOptions.allowRootDuplication]);
+
 
   return (
     <>
@@ -53,7 +63,7 @@ export default function Home() {
 
             {/* Main Chord Card Display */}
             <div className="relative grid grid-cols-2 gap-y-8 place-content-center mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900  bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
-          min-h-96 lg:min-h-[75vh] lg:pb-12
+          min-h-96 lg:min-h-[75vh] lg:pb-16
           sm:grid-cols-4
           lg:grid-cols-4 lg:gap-y-24">
               {chordList.map((chord, index) => {
@@ -150,8 +160,8 @@ export default function Home() {
                       {/* Allow Root Duplication */}
                       <label htmlFor="allowRootDuplicationInput" className="mt-8 block font-normal text-xl text-stone-900">Allow root note duplicates</label>
                       <input id="allowRootDuplicationInput" type="checkbox" className="rootDuplication-checkbox"
-                      checked={formOptions.allowRootDuplication}
-                      onChange={e => setFormOptions({ ...formOptions, allowRootDuplication: e.target.checked })}
+                        checked={formOptions.allowRootDuplication}
+                        onChange={e => setFormOptions({ ...formOptions, allowRootDuplication: e.target.checked })}
                       ></input>
 
                       {/* Chord Type Pool */}
