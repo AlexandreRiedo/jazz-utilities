@@ -117,3 +117,22 @@ export function mainRandomGenerate({ numberOfNotes, notePool, chordPool, allowRo
     return { chords: chordListResult, targetTones: [] };
   }
 }
+
+export function generateSequence({ numberOfSequences, sequencePool, allowSequenceDuplication }: { numberOfSequences: number, sequencePool: Set<string>, allowSequenceDuplication: boolean }) {
+  let sequencePoolArray = Array.from(sequencePool);
+  const sequenceListResult = [];
+
+  for (let i = 0; i < numberOfSequences; i++) {
+    const sequence = sequencePoolArray[Math.floor(Math.random() * sequencePoolArray.length)];
+    sequenceListResult.push(sequence);
+
+    if (!allowSequenceDuplication) {
+      sequencePoolArray.splice(sequencePoolArray.indexOf(sequence), 1);
+      if (sequencePoolArray.length === 0) sequencePoolArray = Array.from(sequencePool);
+    }
+  }
+
+  console.log(numberOfSequences);
+
+  return sequenceListResult;
+}

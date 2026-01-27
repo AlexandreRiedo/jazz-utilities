@@ -4,7 +4,9 @@ export interface FormOptions {
   chordPool: Set<string>;
   allowRootDuplication: boolean;
   enableRandomSequence: boolean;
+  numberOfSequences: number;
   sequencePool: Set<string>;
+  allowSequenceDuplication: boolean;
 }
 
 export function getInitialFormOptions(): FormOptions {
@@ -14,7 +16,9 @@ export function getInitialFormOptions(): FormOptions {
     chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"]),
     allowRootDuplication: false,
     enableRandomSequence: false,
-    sequencePool: new Set(["1", "2", "3", "4", "5", "6", "maj7"]),
+    numberOfSequences: 8,
+    sequencePool: new Set(["1", "2", "3", "4", "5", "6", "△7"]),
+    allowSequenceDuplication: false,
   };
 
   if (typeof window !== 'undefined') {

@@ -1,6 +1,7 @@
 "use client"
 import { useEffect, useState } from "react";
 import { mainRandomGenerate } from './_lib/chordUtils';
+import { generateSequence } from "./_lib/chordUtils";
 import NoteCheckboxGroup from './_components/NoteCheckboxGroup';
 import ChordCheckboxGroup from './_components/ChordCheckboxGroup';
 import { useMetronome } from './_lib/useMetronome';
@@ -12,8 +13,10 @@ export default function Home() {
   // The UI chords and tones, and also the random sequence
   const [chordList, setChordList] = useState<string[]>([]);
   const [numberList, setNumberList] = useState<string[]>([]);
-  const [sequenceList, setSequenceList] = useState(["1", "2", "3", "4", "5", "6", "maj7"]);
+  const [sequenceList, setSequenceList] = useState<string[]>(["1", "2", "3", "4", "5", "6", "△7"]);
   const [isMounted, setIsMounted] = useState(false);
+  // Metronome Stuff
+  const { metronomeSettings, setMetronomeSettings, metronomeState, toggleMetronome } = useMetronome(triggerRandomGeneration);
 
   // Use the default options, or the one stored in local storage
   const [formOptions, setFormOptions] = useState(getInitialFormOptions)
@@ -35,22 +38,20 @@ export default function Home() {
     localStorage.setItem("formOptionsStorage", JSON.stringify(formOptionsArrayEdit));
   }, [formOptions])
 
-  // Random Generation
+  // Random Chord, Guide Tone, & Sequence Generation for the main button
   function triggerRandomGeneration() {
     const resultGeneration = mainRandomGenerate(formOptions);
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
+    setSequenceList(generateSequence(formOptions));
   }
-
-  // Metronome Stuff
-  const { metronomeSettings, setMetronomeSettings, metronomeState, toggleMetronome } = useMetronome(triggerRandomGeneration);
-
   // Update Shown Notes Based On Changes in formOptions
   useEffect(() => {
     const resultGeneration = mainRandomGenerate(formOptions);
     setChordList(resultGeneration.chords);
     setNumberList(resultGeneration.targetTones);
-  }, [formOptions.numberOfNotes, formOptions.notePool, formOptions.chordPool, formOptions.allowRootDuplication]);
+    setSequenceList(generateSequence(formOptions));
+  }, [formOptions]);
 
 
   return (
@@ -73,7 +74,7 @@ export default function Home() {
             <div className="absolute w-40 lg:w-screen h-20 bg-lime-300 right-0 lg:right-[10%] bottom-20"></div>
 
             {/* Main Chord Card Display */}
-            <section className="relative flex mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900 bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
+            <section className="relative flex flex-col mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900 bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
             min-h-96 lg:min-h-[75vh] lg:pb-16">
 
               {/* Chord Grid */}
@@ -92,6 +93,26 @@ export default function Home() {
                   )
                 })}
               </div>
+
+              {/* Random Sequence Display */}
+              {isMounted && formOptions.enableRandomSequence ? <>
+                <hr className="my-8 sm:my-8 h-0.5 w-[90%] mx-auto bg-stone-900/90"></hr>
+                <div className="grid grid-cols-4 gap-y-2 place-content-center
+              sm:grid-cols-4
+              lg:grid-cols-4 lg:gap-y-8 lg:gap-x-8 lg:self-center">
+                  {sequenceList.map((sequence, index) => {
+                    return (
+                      <output key={index} className="text-center font-neobrutalist font-[450] 
+                text-3xl lg:text-5xl text-stone-900/90">
+                        {sequence}</output>
+
+                    )
+                  })}
+                </div>
+              </>
+              : null}
+              
+
             </section>
           </section>
 
@@ -221,7 +242,7 @@ export default function Home() {
                         <h1 className="mt-16 mb-3 font-medium text-4xl leading-8">Random Sequence</h1>
 
                         {/* Enable Random Sequence */}
-                        <label htmlFor="enableRandomSequenceInput" className="block font-normal text-xl text-stone-900">Enable random sequence generation</label>
+                        <label htmlFor="enableRandomSequenceInput" className="not-sm:mb-2 block font-normal text-xl text-stone-900 leading-6">Enable random Sequence</label>
                         <input id="enableRandomSequenceInput" type="checkbox" className="rootDuplication-checkbox"
                           checked={formOptions.enableRandomSequence}
                           onChange={e => setFormOptions({ ...formOptions, enableRandomSequence: e.target.checked })}
@@ -230,11 +251,31 @@ export default function Home() {
                         {/* Sequence Pool Selector */}
                         <label data-disabled={isMounted && !formOptions.enableRandomSequence} className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Sequence Pool Selector</label>
                         <SequenceCheckboxGroup
-                          sequences={["1", "b2", "2", "b3", "3", "4", "#4", "5", "b6", "6", "7", "maj7"]}
+                          sequences={["1", "b2", "2", "b3", "3", "4", "#4", "5", "b6", "6", "7", "△7"]}
                           sequencePool={formOptions.sequencePool}
                           onSequencePoolChange={newSequencePool => setFormOptions({ ...formOptions, sequencePool: newSequencePool })}
                           disabled={isMounted && !formOptions.enableRandomSequence}
                         />
+
+                        {/* Number Of Sequences */}
+                        <label data-disabled={isMounted && !formOptions.enableRandomSequence} htmlFor="numberOfSequencesInput" className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Number of Sequence Items</label>
+                        <input id="numberOfSequencesInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053] disabled:opacity-40"
+                          value={formOptions.numberOfSequences} onChange={e => {
+                            setFormOptions({ ...formOptions, numberOfSequences: (parseInt(e.target.value) || 0) });
+                          }}
+                          min={1}
+                          disabled={isMounted && !formOptions.enableRandomSequence}
+                        ></input>
+
+                        {/* Allow Sequence Duplication */}
+                        <label data-disabled={isMounted && !formOptions.enableRandomSequence} htmlFor="allowSequenceDuplicationInput" className="block font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Allow sequence duplicates</label>
+                        <input id="allowSequenceDuplicationInput" type="checkbox" className="rootDuplication-checkbox disabled:opacity-40"
+                          checked={formOptions.allowSequenceDuplication}
+                          onChange={e => setFormOptions({ ...formOptions, allowSequenceDuplication: e.target.checked })}
+                          disabled={isMounted && !formOptions.enableRandomSequence}
+                        ></input>
+
+                        
                       </section>
 
                     </form>
