@@ -170,8 +170,15 @@ export default function Home() {
                         {/* Number Of Notes */}
                         <label htmlFor="noteNumberInput" className="block font-normal text-xl text-stone-900">Number of Notes</label>
                         <input id="noteNumberInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
-                          value={formOptions.numberOfNotes} onChange={e => {
-                            setFormOptions({ ...formOptions, numberOfNotes: (parseInt(e.target.value) || 0) });
+                          value={formOptions.numberOfNotes || ''} 
+                          onChange={e => {
+                            const val = parseInt(e.target.value) || 0;
+                            setFormOptions({ ...formOptions, numberOfNotes: val });
+                          }}
+                          onBlur={e => {
+                            if (!formOptions.numberOfNotes || formOptions.numberOfNotes < 1) {
+                              setFormOptions({ ...formOptions, numberOfNotes: 1 });
+                            }
                           }}
                           min={1}></input>
 
@@ -260,8 +267,15 @@ export default function Home() {
                         {/* Number Of Sequences */}
                         <label data-disabled={isMounted && !formOptions.enableRandomSequence} htmlFor="numberOfSequencesInput" className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Number of Sequence Items</label>
                         <input id="numberOfSequencesInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053] disabled:opacity-40"
-                          value={formOptions.numberOfSequences} onChange={e => {
-                            setFormOptions({ ...formOptions, numberOfSequences: (parseInt(e.target.value) || 0) });
+                          value={formOptions.numberOfSequences || ''} 
+                          onChange={e => {
+                            const val = parseInt(e.target.value) || 0;
+                            setFormOptions({ ...formOptions, numberOfSequences: val });
+                          }}
+                          onBlur={e => {
+                            if (!formOptions.numberOfSequences || formOptions.numberOfSequences < 1) {
+                              setFormOptions({ ...formOptions, numberOfSequences: 1 });
+                            }
                           }}
                           min={1}
                           disabled={isMounted && !formOptions.enableRandomSequence}
@@ -274,8 +288,6 @@ export default function Home() {
                           onChange={e => setFormOptions({ ...formOptions, allowSequenceDuplication: e.target.checked })}
                           disabled={isMounted && !formOptions.enableRandomSequence}
                         ></input>
-
-                        
                       </section>
 
                     </form>

@@ -21,8 +21,18 @@ export default function MetronomeControls({
         id="tempoInput"
         type="number"
         className="block w-full mb-6 px-4 py-1 border-2 border-[#7a3950] text-lg text-stone-700 bg-[#ffe0f0] focus:outline-0 focus:border-[#ff389c]"
-        value={metronomeSettings.tempo}
-        onChange={e => setMetronomeSettings({ ...metronomeSettings, tempo: parseInt(e.target.value) })}
+        value={metronomeSettings.tempo || ''}
+        onChange={e => {
+          const val = parseInt(e.target.value) || 0;
+          setMetronomeSettings({ ...metronomeSettings, tempo: val });
+        }}
+        onBlur={e => {
+          if (!metronomeSettings.tempo || metronomeSettings.tempo < 1) {
+            setMetronomeSettings({ ...metronomeSettings, tempo: 60 });
+          } else if (metronomeSettings.tempo > 300) {
+            setMetronomeSettings({ ...metronomeSettings, tempo: 300 });
+          }
+        }}
         min={0}
         max={300}
       />
@@ -66,8 +76,18 @@ export default function MetronomeControls({
         id="measuresInput"
         type="number"
         className={`block w-full mb-6 px-4 py-1 border-2 text-lg focus:outline-0 ${metronomeSettings.preventSwitching ? 'border-stone-400 text-stone-400 bg-stone-200 cursor-not-allowed' : 'border-[#7a3950] text-stone-700 bg-[#ffe0f0] focus:border-[#ff389c]'}`}
-        value={metronomeSettings.measures}
-        onChange={e => setMetronomeSettings({ ...metronomeSettings, measures: parseInt(e.target.value) || 1 })}
+        value={metronomeSettings.measures || ''}
+        onChange={e => {
+          const val = parseInt(e.target.value) || 0;
+          setMetronomeSettings({ ...metronomeSettings, measures: val });
+        }}
+        onBlur={e => {
+          if (!metronomeSettings.measures || metronomeSettings.measures < 1) {
+            setMetronomeSettings({ ...metronomeSettings, measures: 1 });
+          } else if (metronomeSettings.measures > 32) {
+            setMetronomeSettings({ ...metronomeSettings, measures: 32 });
+          }
+        }}
         min={1}
         max={32}
         disabled={metronomeSettings.preventSwitching}
