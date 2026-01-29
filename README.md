@@ -1,20 +1,12 @@
-# IDEAS
-## PRESETS
-- Add 3 slots for custom LS presets
+# Jazz Utilities
+Generate random chords -with or sans a harmonically correct guide tone above it- and random scale degrees to practice aleatoric patterns.
 
-## RANDOM CHORD GENERATOR
-- Display Chord Type (Not Really Needed...)
-- Display Guide Tones
-- Guide Tone Picker
+Built using Next.js.
 
-- Inversions
-- II-V-I
-- VI-II-V-I
-- III-VI-II-V
-
-## RANDOM RHYTHM GENERATOR
-- Use idiomatic jazz rhythms
-- Use a JS lib (vexFlow)
-
-# Dev
+Running it is as simple as :
+```bash
 npm run dev
+```
+
+# Suggestions
+If you have any, write me : [AlexandreRiedoPro@gmail.com](mailto:AlexandreRiedoPro@gmail.com)
