@@ -2,7 +2,7 @@ import { Fragment } from 'react';
 import CheckboxGroup from './CheckboxGroup';
 import ClampedNumberInput from './ClampedNumberInput';
 import FieldLabel from './FieldLabel';
-import { FormOptions, getDefaultFormOptions, saveFormOptions, loadFormOptions } from '../_lib/formOptions';
+import { FormOptions, PresetSlot, getDefaultFormOptions, getBuiltInPreset, saveFormOptions, loadFormOptions } from '../_lib/formOptions';
 
 interface OptionsFormProps {
   formOptions: FormOptions;
@@ -23,10 +23,11 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
       alert('Failed to save preset.');
     }
   }
-  function handleLoadPreset(presetKey: string) {
+  // Empty slots fall back to their built-in preset until the user saves over them.
+  function handleLoadPreset(slot: PresetSlot) {
     try {
-      const preset = loadFormOptions(presetKey);
-      if (preset) setFormOptions(preset);
+      const preset = loadFormOptions(`jazzPreset${slot}`);
+      setFormOptions(preset ?? getBuiltInPreset(slot));
     } catch {
       alert('Failed to load preset.');
     }
@@ -174,7 +175,7 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
                 <button
                   type="button"
                   className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
-                  onClick={() => handleLoadPreset(`jazzPreset${slot}`)}
+                  onClick={() => handleLoadPreset(slot)}
                 >Load Preset {slot}</button>
               </Fragment>
             ))}

@@ -12,7 +12,7 @@ Try it live: [alexandreriedo.github.io/jazz-utilities](https://alexandreriedo.gi
 - **Guide tones**: each chord can display a random target tone to aim for, drawn from a scale that fits the chord quality (e.g. altered scale over `alt`, whole-half diminished over `°7`).
 - **Random sequences**: generate a random order of scale degrees (1 through △7) to run patterns through.
 - **Metronome**: set tempo, time signature, and cycle length; a fresh set of chords is generated automatically at the end of each cycle.
-- **Presets**: your settings are saved in the browser between sessions.
+- **Presets**: your settings are saved in the browser between sessions, plus three save/load slots (A/B/C) that start out with built-in presets: triads, 7th chords, and advanced chords with a random sequence.
 
 ## Development
 

@@ -26,6 +26,31 @@ export function getDefaultFormOptions(): FormOptions {
   };
 }
 
+export type PresetSlot = "A" | "B" | "C";
+
+// Built-in content for the A/B/C slots, used when the user hasn't
+// saved their own preset in a slot yet.
+export function getBuiltInPreset(slot: PresetSlot): FormOptions {
+  const preset = getDefaultFormOptions();
+  switch (slot) {
+    case "A": // gentle intro: just 2 triads
+      preset.numberOfNotes = 2;
+      preset.chordPool = new Set(["", "m", "dim", "sus2", "sus4"]);
+      break;
+    case "B": // 7th chords only
+      preset.chordPool = new Set(["maj7", "m7", "m7b5", "7", "°7"]);
+      break;
+    case "C": // advanced chords, with a random sequence
+      preset.chordPool = new Set([
+        "6", "maj9", "maj13", "m9", "m11", "m6", "9", "13", "7sus4",
+        "alt", "7b9", "7#11", "mMaj7", "13b9", "maj7#5",
+      ]);
+      preset.enableRandomSequence = true;
+      break;
+  }
+  return preset;
+}
+
 // Sets aren't JSON-serializable, so the pools are stored as arrays
 // and revived back into Sets on load.
 export function saveFormOptions(key: string, options: FormOptions) {
