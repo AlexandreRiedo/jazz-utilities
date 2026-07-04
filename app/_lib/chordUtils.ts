@@ -60,7 +60,7 @@ export function generateRandomTargetTone(chordQuality: string) {
     case "alt":
       allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("9"), 1, "b9");
       allowedExtensionDegrees.push("#9");
-      allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 0);
+      allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("5"), 1);
       allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("13"), 1, "b13");
       return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
@@ -85,6 +85,8 @@ export function generateRandomTargetTone(chordQuality: string) {
       allowedExtensionDegrees.splice(allowedExtensionDegrees.indexOf("7"), 1, "maj7");
       return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
 
+    // Lydian dominant: the base extension list (with #11 and b7) is already correct
+    case "7#11":
     default:
       return allowedExtensionDegrees[Math.floor(Math.random() * allowedExtensionDegrees.length)];
   }
@@ -93,7 +95,6 @@ export function generateRandomTargetTone(chordQuality: string) {
 export function mainRandomGenerate({ numberOfNotes, notePool, chordPool, allowRootDuplication }: { numberOfNotes: number, notePool: Set<string>, chordPool: Set<string>, allowRootDuplication: boolean }) {
   let notePoolArray = Array.from(notePool);
   const chordQuality = Array.from(chordPool);
-  const showNumberList = true;
   const chordListResult = [];
   const targetToneListResult = [];
 
@@ -111,11 +112,7 @@ export function mainRandomGenerate({ numberOfNotes, notePool, chordPool, allowRo
     }
   }
 
-  if (showNumberList) {
-    return { chords: chordListResult, targetTones: targetToneListResult };
-  } else {
-    return { chords: chordListResult, targetTones: [] };
-  }
+  return { chords: chordListResult, targetTones: targetToneListResult };
 }
 
 export function generateSequence({ numberOfSequences, sequencePool, allowSequenceDuplication }: { numberOfSequences: number, sequencePool: Set<string>, allowSequenceDuplication: boolean }) {
@@ -131,8 +128,6 @@ export function generateSequence({ numberOfSequences, sequencePool, allowSequenc
       if (sequencePoolArray.length === 0) sequencePoolArray = Array.from(sequencePool);
     }
   }
-
-  console.log(numberOfSequences);
 
   return sequenceListResult;
 }

@@ -12,7 +12,7 @@ export interface FormOptions {
 
 export function getDefaultFormOptions(): FormOptions {
   return {
-    numberOfNotes: typeof window !== 'undefined' && window.innerWidth < 1024 ? 8 : 8,
+    numberOfNotes: 8,
     notePool: new Set(["C", "D♭", "D", "E♭", "E", "F", "F♯", "G", "A♭", "A", "B♭", "B"]),
     chordPool: new Set(["", "m", "dim", "maj7", "m7", "m7b5", "7", "°7", "mMaj7"]),
     allowRootDuplication: false,

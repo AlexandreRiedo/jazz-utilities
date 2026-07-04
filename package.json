@@ -11,9 +11,7 @@
   "dependencies": {
     "next": "^16.2.10",
     "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "tonal": "^6.4.2",
-    "uuid": "^13.0.0"
+    "react-dom": "19.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
