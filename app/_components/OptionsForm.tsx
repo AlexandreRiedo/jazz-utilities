@@ -1,5 +1,7 @@
 import { Fragment } from 'react';
 import CheckboxGroup from './CheckboxGroup';
+import ClampedNumberInput from './ClampedNumberInput';
+import FieldLabel from './FieldLabel';
 import { FormOptions, getDefaultFormOptions, saveFormOptions, loadFormOptions } from '../_lib/formOptions';
 
 interface OptionsFormProps {
@@ -9,6 +11,9 @@ interface OptionsFormProps {
 }
 
 export default function OptionsForm({ formOptions, setFormOptions, isMounted }: OptionsFormProps) {
+  // The sequence controls are disabled together; gated on isMounted so the
+  // server render and first client render agree.
+  const sequenceDisabled = isMounted && !formOptions.enableRandomSequence;
 
   // Save/Load handlers for 3 presets
   function handleSavePreset(presetKey: string) {
@@ -33,22 +38,16 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
       <section>
         <h1 className="mb-3 mt-4 font-medium text-4xl leading-8">Chord and Note Pool</h1>
         {/* Number Of Notes */}
-        <label htmlFor="noteNumberInput" className="block font-normal text-xl text-stone-900">Number of Notes</label>
-        <input id="noteNumberInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053]"
-          value={formOptions.numberOfNotes || ''}
-          onChange={e => {
-            const val = parseInt(e.target.value) || 0;
-            setFormOptions({ ...formOptions, numberOfNotes: val });
-          }}
-          onBlur={() => {
-            if (!formOptions.numberOfNotes || formOptions.numberOfNotes < 1) {
-              setFormOptions({ ...formOptions, numberOfNotes: 1 });
-            }
-          }}
-          min={1}></input>
+        <FieldLabel htmlFor="noteNumberInput">Number of Notes</FieldLabel>
+        <ClampedNumberInput id="noteNumberInput"
+          className="mb-8 border-form-border text-stone-700 bg-form-bg focus:border-accent-amber"
+          value={formOptions.numberOfNotes}
+          onChange={numberOfNotes => setFormOptions({ ...formOptions, numberOfNotes })}
+          min={1}
+        />
 
         {/* Note Pool: sharp, white, and flat keys */}
-        <label className="block font-normal text-xl text-stone-900">Note Pool</label>
+        <FieldLabel>Note Pool</FieldLabel>
         {[
           ["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"],
           ["C", "D", "E", "F", "G", "A", "B"],
@@ -64,21 +63,21 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
         ))}
 
         {/* Allow Root Duplication */}
-        <label htmlFor="allowRootDuplicationInput" className="mt-8 block font-normal text-xl text-stone-900">Allow root note duplicates</label>
+        <FieldLabel htmlFor="allowRootDuplicationInput" className="mt-8">Allow root note duplicates</FieldLabel>
         <input id="allowRootDuplicationInput" type="checkbox" className="rootDuplication-checkbox"
           checked={formOptions.allowRootDuplication}
           onChange={e => setFormOptions({ ...formOptions, allowRootDuplication: e.target.checked })}
         ></input>
 
         {/* Show Guide Tone Display */}
-        <label htmlFor="guideToneDisplayInput" className="mt-4 block font-normal text-xl text-stone-900">Show guide tone display</label>
+        <FieldLabel htmlFor="guideToneDisplayInput" className="mt-4">Show guide tone display</FieldLabel>
         <input id="guideToneDisplayInput" type="checkbox" className="rootDuplication-checkbox"
           checked={formOptions.showGuideToneDisplay}
           onChange={e => setFormOptions({ ...formOptions, showGuideToneDisplay: e.target.checked })}
         ></input>
 
         {/* Chord Type Pool */}
-        <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
+        <FieldLabel className="mt-8">Chord Type Pool</FieldLabel>
         <div className="grid grid-cols-[1fr_1fr_3fr]">
           {/* Simple Triads */}
           <CheckboxGroup
@@ -118,45 +117,38 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
         <h1 className="mt-16 mb-3 font-medium text-4xl leading-8">Random Sequence</h1>
 
         {/* Enable Random Sequence */}
-        <label htmlFor="enableRandomSequenceInput" className="not-sm:mb-2 block font-normal text-xl text-stone-900 leading-6">Enable random Sequence</label>
+        <FieldLabel htmlFor="enableRandomSequenceInput" className="not-sm:mb-2 leading-6">Enable random Sequence</FieldLabel>
         <input id="enableRandomSequenceInput" type="checkbox" className="rootDuplication-checkbox"
           checked={formOptions.enableRandomSequence}
           onChange={e => setFormOptions({ ...formOptions, enableRandomSequence: e.target.checked })}
         ></input>
 
         {/* Sequence Pool Selector */}
-        <label data-disabled={isMounted && !formOptions.enableRandomSequence} className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Sequence Pool Selector</label>
+        <FieldLabel disabled={sequenceDisabled} className="mt-8">Sequence Pool Selector</FieldLabel>
         <CheckboxGroup
           items={["1", "b2", "2", "b3", "3", "4", "#4", "5", "b6", "6", "7", "△7"]}
           selected={formOptions.sequencePool}
           onChange={newSequencePool => setFormOptions({ ...formOptions, sequencePool: newSequencePool })}
-          disabled={isMounted && !formOptions.enableRandomSequence}
+          disabled={sequenceDisabled}
           className="grid grid-cols-4 gap-2 mb-2 disabled:cursor-not-allowed"
         />
 
         {/* Number Of Sequences */}
-        <label data-disabled={isMounted && !formOptions.enableRandomSequence} htmlFor="numberOfSequencesInput" className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Number of Sequence Items</label>
-        <input id="numberOfSequencesInput" type="number" className="block w-full mb-8 px-4 py-1 border-2 border-[#574141] text-lg text-stone-700 bg-[hsl(29,100%,90%)] focus:outline-0 focus:border-[#FFC053] disabled:opacity-40"
-          value={formOptions.numberOfSequences || ''}
-          onChange={e => {
-            const val = parseInt(e.target.value) || 0;
-            setFormOptions({ ...formOptions, numberOfSequences: val });
-          }}
-          onBlur={() => {
-            if (!formOptions.numberOfSequences || formOptions.numberOfSequences < 1) {
-              setFormOptions({ ...formOptions, numberOfSequences: 1 });
-            }
-          }}
+        <FieldLabel disabled={sequenceDisabled} htmlFor="numberOfSequencesInput" className="mt-8">Number of Sequence Items</FieldLabel>
+        <ClampedNumberInput id="numberOfSequencesInput"
+          className="mb-8 border-form-border text-stone-700 bg-form-bg focus:border-accent-amber disabled:opacity-40"
+          value={formOptions.numberOfSequences}
+          onChange={numberOfSequences => setFormOptions({ ...formOptions, numberOfSequences })}
           min={1}
-          disabled={isMounted && !formOptions.enableRandomSequence}
-        ></input>
+          disabled={sequenceDisabled}
+        />
 
         {/* Allow Sequence Duplication */}
-        <label data-disabled={isMounted && !formOptions.enableRandomSequence} htmlFor="allowSequenceDuplicationInput" className="block font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Allow sequence duplicates</label>
+        <FieldLabel disabled={sequenceDisabled} htmlFor="allowSequenceDuplicationInput">Allow sequence duplicates</FieldLabel>
         <input id="allowSequenceDuplicationInput" type="checkbox" className="rootDuplication-checkbox disabled:opacity-40"
           checked={formOptions.allowSequenceDuplication}
           onChange={e => setFormOptions({ ...formOptions, allowSequenceDuplication: e.target.checked })}
-          disabled={isMounted && !formOptions.enableRandomSequence}
+          disabled={sequenceDisabled}
         ></input>
       </section>
 
@@ -168,7 +160,7 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
         <div className="flex flex-col gap-3">
           <button
             type="button"
-            className="w-full border-2 px-4 py-1 font-normal text-xl bg-[#ffc053] hover:bg-[hsl(30,100%,86%)] shadow-[4px_4px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+            className="w-full border-2 px-4 py-1 font-normal text-xl bg-accent-amber hover:bg-amber-hover shadow-[4px_4px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
             onClick={() => setFormOptions(getDefaultFormOptions())}
           >Apply Default Preset</button>
           <div className="grid grid-cols-2 gap-2 mt-2">

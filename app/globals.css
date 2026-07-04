@@ -7,12 +7,26 @@
   --font-neobrutalist: var(--font-neobrutalist);
 }
 
+/* The recurring palette values, named so the palette is visible and greppable.
+   One-off decorative colors stay inline where they're used. */
+@theme {
+  --color-accent-pink: #ff389c;   /* metronome widget accent */
+  --color-accent-amber: #ffc053;  /* options widget accent */
+  --color-accent-red: #ff3859;    /* randomize button */
+  --color-form-border: #574141;   /* options inputs/checkboxes */
+  --color-form-bg: hsl(29, 100%, 90%);
+  --color-metronome-border: #7a3950; /* metronome inputs */
+  --color-metronome-bg: #ffe0f0;
+  --color-panel-border: #7e4651;  /* bottom panel strips */
+  --color-amber-hover: hsl(30, 100%, 86%);
+}
+
 .note-label {
   @apply inline-flex flex-col items-center mx-1 text-base text-stone-700 cursor-pointer;
 }
 .note-checkbox {
-  @apply appearance-none not-sm:size-6 size-8 border-2 border-[#574141] bg-[hsl(29,100%,90%)] checked:bg-[url('/jazz-utilities/svg/checked.svg')] cursor-pointer;
+  @apply appearance-none not-sm:size-6 size-8 border-2 border-form-border bg-form-bg checked:bg-[url('/jazz-utilities/svg/checked.svg')] cursor-pointer;
 }
 .rootDuplication-checkbox {
-  @apply appearance-none not-sm:size-6 size-8 border-2 border-[#574141] bg-[hsl(29,100%,90%)] checked:bg-[url('/jazz-utilities/svg/checked.svg')] cursor-pointer;
+  @apply appearance-none not-sm:size-6 size-8 border-2 border-form-border bg-form-bg checked:bg-[url('/jazz-utilities/svg/checked.svg')] cursor-pointer;
 }

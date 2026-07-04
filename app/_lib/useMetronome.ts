@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 
+// Web Audio "lookahead scheduler": plain JS timers are too jittery to time
+// audio, but the AudioContext clock is sample-accurate. So a setTimeout loop
+// (`scheduler`) wakes every SCHEDULER_INTERVAL_MS, and schedules any clicks
+// falling within the next LOOKAHEAD_SECONDS directly on the audio clock.
+// UI updates (beat indicator, chord regeneration) ride along on setTimeouts
+// aimed at the same instants.
+
 export interface MetronomeSettings {
   tempo: number;
   timeSignature: { beats: number; noteValue: number };
@@ -13,8 +20,38 @@ export interface MetronomeState {
   currentMeasure: number;
 }
 
-const LOOKAHEAD = 0.1;
-const SCHEDULE_INTERVAL = 25.0;
+const LOOKAHEAD_SECONDS = 0.1;
+const SCHEDULER_INTERVAL_MS = 25;
+
+// Click pitches (Hz)
+const CYCLE_START_PITCH = 1000;
+const DOWNBEAT_PITCH = 800;
+const OFFBEAT_PITCH = 600;
+
+// Click envelope
+const CLICK_PEAK_GAIN = 0.3;
+const CLICK_ATTACK_SECONDS = 0.002; // fast attack to keep it snappy
+const CLICK_DURATION_SECONDS = 0.1;
+const CLICK_END_GAIN = 0.001; // exponential ramp can't reach 0
+
+// One metronome click: a short oscillator burst shaped by a gain envelope —
+// fast attack, exponential decay — for a natural "pluck" sound.
+function playClick(ctx: AudioContext, time: number, frequency: number) {
+  const osc = ctx.createOscillator();
+  const envelope = ctx.createGain();
+
+  osc.frequency.value = frequency;
+
+  envelope.gain.setValueAtTime(0, time);
+  envelope.gain.linearRampToValueAtTime(CLICK_PEAK_GAIN, time + CLICK_ATTACK_SECONDS);
+  envelope.gain.exponentialRampToValueAtTime(CLICK_END_GAIN, time + CLICK_DURATION_SECONDS);
+
+  osc.connect(envelope);
+  envelope.connect(ctx.destination);
+
+  osc.start(time);
+  osc.stop(time + CLICK_DURATION_SECONDS);
+}
 
 export function useMetronome(onMeasureCycleComplete: () => void) {
   const [metronomeSettings, setMetronomeSettings] = useState<MetronomeSettings>({
@@ -31,10 +68,19 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
   });
 
   const audioCtxRef = useRef<AudioContext | null>(null);
-  const nextNoteTimeRef = useRef<number>(0);
+
+  // Playback position on the audio clock — the source of truth while playing.
+  // `metronomeState` above is only a UI mirror of it, synced by the delayed
+  // setTimeout in scheduleNote.
+  const nextNoteTimeRef = useRef<number>(0); // when the next click is due, in AudioContext time
   const beatRef = useRef<number>(0);
   const measureCountRef = useRef<number>(0); // Tracks progress through the cycle
+
   const timerIdRef = useRef<number | null>(null);
+
+  // The scheduler loop runs outside React's render cycle, so it reads the
+  // latest settings/callback through refs — values captured in its closure
+  // would go stale after the first render.
   const settingsRef = useRef<MetronomeSettings>(metronomeSettings);
   const onCycleCompleteRef = useRef(onMeasureCycleComplete);
 
@@ -50,43 +96,28 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
   const scheduleNote = (beatNumber: number, measureNumber: number, time: number) => {
     if (!audioCtxRef.current) return;
 
-    const osc = audioCtxRef.current.createOscillator();
-    const envelope = audioCtxRef.current.createGain();
-
-    // Frequency logic (Pitch)
-    const isFirstBeatOfCycle = beatNumber === 0 && measureNumber === 0;
+    const isCycleStart = beatNumber === 0 && measureNumber === 0;
     const isDownbeat = beatNumber === 0;
-    
-    // Use consistent pitch when prevent switching is enabled
-    if (settingsRef.current.preventSwitching) {
-      osc.frequency.value = isDownbeat ? 800 : 600;
-    } else {
-      osc.frequency.value = isFirstBeatOfCycle ? 1000 : isDownbeat ? 800 : 600;
-    }
 
-    const peakGain = 0.3;
+    // The cycle-start accent only matters when chords switch per cycle;
+    // with switching prevented, every downbeat sounds the same.
+    const pitch =
+      isCycleStart && !settingsRef.current.preventSwitching ? CYCLE_START_PITCH
+      : isDownbeat ? DOWNBEAT_PITCH
+      : OFFBEAT_PITCH;
 
-    envelope.gain.setValueAtTime(0, time);
-    // Fast attack to keep it snappy
-    envelope.gain.linearRampToValueAtTime(peakGain, time + 0.002);
-    // Exponential decay for a natural "pluck" sound
-    envelope.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
+    playClick(audioCtxRef.current, time, pitch);
 
-    osc.connect(envelope);
-    envelope.connect(audioCtxRef.current.destination);
-
-    osc.start(time);
-    osc.stop(time + 0.1);
-
-    // Sync visual UI with Audio clock
-    const diff = (time - audioCtxRef.current.currentTime) * 1000;
+    // The click is scheduled ahead of "now" — delay the React state update
+    // so the beat indicator flips exactly when the click sounds.
+    const msUntilClick = (time - audioCtxRef.current.currentTime) * 1000;
     setTimeout(() => {
       setMetronomeState(prev => ({
         ...prev,
         currentBeat: beatNumber,
         currentMeasure: measureNumber
       }));
-    }, diff);
+    }, msUntilClick);
   };
 
   const scheduler = () => {
@@ -94,7 +125,7 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
 
     const settings = settingsRef.current;
 
-    while (nextNoteTimeRef.current < audioCtxRef.current.currentTime + LOOKAHEAD) {
+    while (nextNoteTimeRef.current < audioCtxRef.current.currentTime + LOOKAHEAD_SECONDS) {
       // 1. Schedule the current note
       scheduleNote(beatRef.current, measureCountRef.current, nextNoteTimeRef.current);
 
@@ -123,7 +154,7 @@ export function useMetronome(onMeasureCycleComplete: () => void) {
         }
       }
     }
-    timerIdRef.current = window.setTimeout(scheduler, SCHEDULE_INTERVAL);
+    timerIdRef.current = window.setTimeout(scheduler, SCHEDULER_INTERVAL_MS);
   };
 
   const toggleMetronome = () => {
