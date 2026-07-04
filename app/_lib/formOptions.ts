@@ -10,6 +10,8 @@ export interface FormOptions {
   allowSequenceDuplication: boolean;
 }
 
+export const FORM_OPTIONS_STORAGE_KEY = "formOptionsStorage";
+
 export function getDefaultFormOptions(): FormOptions {
   return {
     numberOfNotes: 8,
@@ -24,26 +26,42 @@ export function getDefaultFormOptions(): FormOptions {
   };
 }
 
-export function getInitialFormOptions(): FormOptions {
-  const defaultFormOptions = getDefaultFormOptions();
+// Sets aren't JSON-serializable, so the pools are stored as arrays
+// and revived back into Sets on load.
+export function saveFormOptions(key: string, options: FormOptions) {
+  const serializable = {
+    ...options,
+    notePool: Array.from(options.notePool),
+    chordPool: Array.from(options.chordPool),
+    sequencePool: Array.from(options.sequencePool),
+  };
+  localStorage.setItem(key, JSON.stringify(serializable));
+}
 
-  if (typeof window !== 'undefined') {
-    const storedFormOptions = localStorage.getItem("formOptionsStorage");
-    if (storedFormOptions) {
-      try {
-        // Convert the stored arrays back to sets
-        const parsed = JSON.parse(storedFormOptions);
-        return {
-          ...parsed,
-          notePool: new Set(parsed.notePool),
-          chordPool: new Set(parsed.chordPool),
-          sequencePool: new Set(parsed.sequencePool),
-        };
-      } catch (error) {
-        console.error("Failed to parse stored form options:", error);
-      }
+// Returns null when nothing is stored under `key`; throws on corrupt data.
+export function loadFormOptions(key: string): FormOptions | null {
+  const stored = localStorage.getItem(key);
+  if (!stored) return null;
+
+  const parsed = JSON.parse(stored);
+  return {
+    ...parsed,
+    notePool: new Set(parsed.notePool),
+    chordPool: new Set(parsed.chordPool),
+    sequencePool: new Set(parsed.sequencePool),
+  };
+}
+
+export function getInitialFormOptions(): FormOptions {
+  // localStorage doesn't exist during server-side rendering
+  if (typeof window !== "undefined") {
+    try {
+      const stored = loadFormOptions(FORM_OPTIONS_STORAGE_KEY);
+      if (stored) return stored;
+    } catch (error) {
+      console.error("Failed to parse stored form options:", error);
     }
   }
 
-  return defaultFormOptions;
+  return getDefaultFormOptions();
 }

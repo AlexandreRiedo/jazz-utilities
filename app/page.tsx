@@ -1,11 +1,12 @@
 "use client"
 import { useEffect, useState } from "react";
-import { mainRandomGenerate } from './_lib/chordUtils';
-import { generateSequence } from "./_lib/chordUtils";
+import { mainRandomGenerate, generateSequence } from './_lib/chordUtils';
 import { useMetronome } from './_lib/useMetronome';
 import MetronomeControls from './_components/MetronomeControls';
-import { getInitialFormOptions } from './_lib/storageUtils';
+import { getInitialFormOptions, saveFormOptions, FORM_OPTIONS_STORAGE_KEY } from './_lib/formOptions';
 import OptionsForm from './_components/OptionsForm';
+import ChordGrid from './_components/ChordGrid';
+import SequenceGrid from './_components/SequenceGrid';
 
 export default function Home() {
   // The UI chords and tones, and also the random sequence
@@ -25,15 +26,8 @@ export default function Home() {
   }, []);
 
   // Store in local storage on formOptions Changes
-  // NB: Make sure that sets are converted to Arrays !
   useEffect(() => {
-    const formOptionsArrayEdit = {
-      ...formOptions,
-      notePool: Array.from(formOptions.notePool),
-      chordPool: Array.from(formOptions.chordPool),
-      sequencePool: Array.from(formOptions.sequencePool),
-    };
-    localStorage.setItem("formOptionsStorage", JSON.stringify(formOptionsArrayEdit));
+    saveFormOptions(FORM_OPTIONS_STORAGE_KEY, formOptions);
   }, [formOptions])
 
   // Random Chord, Guide Tone, & Sequence Generation for the main button
@@ -43,13 +37,8 @@ export default function Home() {
     setNumberList(resultGeneration.targetTones);
     setSequenceList(generateSequence(formOptions));
   }
-  // Update Shown Notes Based On Changes in formOptions
-  useEffect(() => {
-    const resultGeneration = mainRandomGenerate(formOptions);
-    setChordList(resultGeneration.chords);
-    setNumberList(resultGeneration.targetTones);
-    setSequenceList(generateSequence(formOptions));
-  }, [formOptions]);
+  // Regenerate when formOptions change (covers the initial render too)
+  useEffect(triggerRandomGeneration, [formOptions]);
 
 
   return (
@@ -75,43 +64,15 @@ export default function Home() {
             <section className="relative flex flex-col mx-4 px-4 py-12 text-stone-900 border-3 border-stone-900 bg-[#fff3f5] shadow-[8px_8px_var(--color-stone-900)]
             min-h-96 lg:min-h-[75vh] lg:pb-16">
 
-              {/* Chord Grid */}
-              <div className="grid grid-cols-2 gap-y-8 place-content-center flex-1
-              sm:grid-cols-4
-              lg:grid-cols-4 lg:gap-y-24">
-                {chordList.map((chord, index) => {
-                  return (
-                    <output key={index} className="text-center font-neobrutalist font-[450] 
-                text-4xl lg:text-6xl">
-                      {isMounted && formOptions.showGuideToneDisplay ? (
-                        <span id="guideToneDisplay" className="block text-center font-normal text-stone-600
-                  text-3xl lg:text-4xl">
-                          {numberList[index]}</span>
-                      ) : null}
-                      {chord}</output>
+              <ChordGrid
+                chords={chordList}
+                guideTones={numberList}
+                showGuideTones={isMounted && formOptions.showGuideToneDisplay}
+              />
 
-                  )
-                })}
-              </div>
-
-              {/* Random Sequence Display */}
-              {isMounted && formOptions.enableRandomSequence ? <>
-                <hr className="my-8 sm:my-8 h-0.5 w-[90%] mx-auto bg-stone-900/90"></hr>
-                <div className="grid grid-cols-4 gap-y-2 place-content-center
-              sm:grid-cols-4
-              lg:grid-cols-4 lg:gap-y-8 lg:gap-x-8 lg:self-center">
-                  {sequenceList.map((sequence, index) => {
-                    return (
-                      <output key={index} className="text-center font-neobrutalist font-[450] 
-                text-3xl lg:text-5xl text-stone-900/90">
-                        {sequence}</output>
-
-                    )
-                  })}
-                </div>
-              </>
-                : null}
-
+              {isMounted && formOptions.enableRandomSequence && (
+                <SequenceGrid sequence={sequenceList} />
+              )}
 
             </section>
           </section>

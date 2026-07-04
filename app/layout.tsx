@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { National_Park, Bricolage_Grotesque, Alan_Sans, Fredoka} from "next/font/google";
+import { National_Park, Fredoka } from "next/font/google";
 import "./globals.css";
 
 const nationalPark = National_Park({

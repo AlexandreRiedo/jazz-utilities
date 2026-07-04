@@ -1,19 +1,6 @@
-import NoteCheckboxGroup from './NoteCheckboxGroup';
-import ChordCheckboxGroup from './ChordCheckboxGroup';
-import SequenceCheckboxGroup from './SequenceCheckboxGroup';
-import { getDefaultFormOptions } from '../_lib/storageUtils';
-
-interface FormOptions {
-  numberOfNotes: number;
-  notePool: Set<string>;
-  allowRootDuplication: boolean;
-  showGuideToneDisplay: boolean;
-  chordPool: Set<string>;
-  enableRandomSequence: boolean;
-  sequencePool: Set<string>;
-  numberOfSequences: number;
-  allowSequenceDuplication: boolean;
-}
+import { Fragment } from 'react';
+import CheckboxGroup from './CheckboxGroup';
+import { FormOptions, getDefaultFormOptions, saveFormOptions, loadFormOptions } from '../_lib/formOptions';
 
 interface OptionsFormProps {
   formOptions: FormOptions;
@@ -26,31 +13,16 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
   // Save/Load handlers for 3 presets
   function handleSavePreset(presetKey: string) {
     try {
-      const presetToSave = {
-        ...formOptions,
-        notePool: Array.from(formOptions.notePool),
-        chordPool: Array.from(formOptions.chordPool),
-        sequencePool: Array.from(formOptions.sequencePool),
-      };
-      localStorage.setItem(presetKey, JSON.stringify(presetToSave));
-    } catch (e) {
+      saveFormOptions(presetKey, formOptions);
+    } catch {
       alert('Failed to save preset.');
     }
   }
   function handleLoadPreset(presetKey: string) {
     try {
-      const presetStr = localStorage.getItem(presetKey);
-      if (!presetStr) {
-        return;
-      }
-      const parsed = JSON.parse(presetStr);
-      setFormOptions({
-        ...parsed,
-        notePool: new Set(parsed.notePool),
-        chordPool: new Set(parsed.chordPool),
-        sequencePool: new Set(parsed.sequencePool),
-      });
-    } catch (e) {
+      const preset = loadFormOptions(presetKey);
+      if (preset) setFormOptions(preset);
+    } catch {
       alert('Failed to load preset.');
     }
   }
@@ -68,33 +40,28 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
             const val = parseInt(e.target.value) || 0;
             setFormOptions({ ...formOptions, numberOfNotes: val });
           }}
-          onBlur={e => {
+          onBlur={() => {
             if (!formOptions.numberOfNotes || formOptions.numberOfNotes < 1) {
               setFormOptions({ ...formOptions, numberOfNotes: 1 });
             }
           }}
           min={1}></input>
 
-        {/* Note Pool */}
+        {/* Note Pool: sharp, white, and flat keys */}
         <label className="block font-normal text-xl text-stone-900">Note Pool</label>
-        {/* Sharp Keys */}
-        <NoteCheckboxGroup
-          notes={["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"]}
-          notePool={formOptions.notePool}
-          onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-        />
-        {/* White Keys */}
-        <NoteCheckboxGroup
-          notes={["C", "D", "E", "F", "G", "A", "B"]}
-          notePool={formOptions.notePool}
-          onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-        />
-        {/* Flat Keys */}
-        <NoteCheckboxGroup
-          notes={["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"]}
-          notePool={formOptions.notePool}
-          onNotePoolChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
-        />
+        {[
+          ["C♯", "D♯", "E♯", "F♯", "G♯", "A♯", "B♯"],
+          ["C", "D", "E", "F", "G", "A", "B"],
+          ["C♭", "D♭", "E♭", "F♭", "G♭", "A♭", "B♭"],
+        ].map((noteRow, index) => (
+          <CheckboxGroup
+            key={index}
+            items={noteRow}
+            selected={formOptions.notePool}
+            onChange={newNotePool => setFormOptions({ ...formOptions, notePool: newNotePool })}
+            className="flex flex-row justify-between gap-2 my-2"
+          />
+        ))}
 
         {/* Allow Root Duplication */}
         <label htmlFor="allowRootDuplicationInput" className="mt-8 block font-normal text-xl text-stone-900">Allow root note duplicates</label>
@@ -114,31 +81,33 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
         <label className="block mt-8 font-normal text-xl text-stone-900">Chord Type Pool</label>
         <div className="grid grid-cols-[1fr_1fr_3fr]">
           {/* Simple Triads */}
-          <ChordCheckboxGroup
-            chords={[
+          <CheckboxGroup
+            items={[
               { value: "", display: "maj" },
               "m", "dim", "sus2", "sus4"
             ]}
-            chordPool={formOptions.chordPool}
-            onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+            selected={formOptions.chordPool}
+            onChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+            className="flex flex-col gap-2 mb-2"
           />
           {/* 7th Chords */}
-          <ChordCheckboxGroup
-            chords={["maj7", "m7", "m7b5", "7", "°7"]}
-            chordPool={formOptions.chordPool}
-            onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+          <CheckboxGroup
+            items={["maj7", "m7", "m7b5", "7", "°7"]}
+            selected={formOptions.chordPool}
+            onChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+            className="flex flex-col gap-2 mb-2"
           />
           {/* Advanced Chords */}
-          <ChordCheckboxGroup
-            chords={[
+          <CheckboxGroup
+            items={[
               "6", "maj9", "maj13",
               "m9", "m11", "m6",
               "9", "13", "7sus4",
               "alt", "7b9", "7#11",
               "mMaj7", "13b9", "maj7#5"
             ]}
-            chordPool={formOptions.chordPool}
-            onChordPoolChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
+            selected={formOptions.chordPool}
+            onChange={newChordPool => setFormOptions({ ...formOptions, chordPool: newChordPool })}
             className="pl-4 grid grid-cols-3 auto-rows-min gap-y-2 mb-2"
           />
         </div>
@@ -157,11 +126,12 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
 
         {/* Sequence Pool Selector */}
         <label data-disabled={isMounted && !formOptions.enableRandomSequence} className="block mt-8 font-normal text-xl text-stone-900 data-[disabled=true]:opacity-40">Sequence Pool Selector</label>
-        <SequenceCheckboxGroup
-          sequences={["1", "b2", "2", "b3", "3", "4", "#4", "5", "b6", "6", "7", "△7"]}
-          sequencePool={formOptions.sequencePool}
-          onSequencePoolChange={newSequencePool => setFormOptions({ ...formOptions, sequencePool: newSequencePool })}
+        <CheckboxGroup
+          items={["1", "b2", "2", "b3", "3", "4", "#4", "5", "b6", "6", "7", "△7"]}
+          selected={formOptions.sequencePool}
+          onChange={newSequencePool => setFormOptions({ ...formOptions, sequencePool: newSequencePool })}
           disabled={isMounted && !formOptions.enableRandomSequence}
+          className="grid grid-cols-4 gap-2 mb-2 disabled:cursor-not-allowed"
         />
 
         {/* Number Of Sequences */}
@@ -172,7 +142,7 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
             const val = parseInt(e.target.value) || 0;
             setFormOptions({ ...formOptions, numberOfSequences: val });
           }}
-          onBlur={e => {
+          onBlur={() => {
             if (!formOptions.numberOfSequences || formOptions.numberOfSequences < 1) {
               setFormOptions({ ...formOptions, numberOfSequences: 1 });
             }
@@ -202,36 +172,20 @@ export default function OptionsForm({ formOptions, setFormOptions, isMounted }: 
             onClick={() => setFormOptions(getDefaultFormOptions())}
           >Apply Default Preset</button>
           <div className="grid grid-cols-2 gap-2 mt-2">
-            <button
-              type="button"
-              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffe18a] hover:bg-[hsl(30,100%,92%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
-              onClick={() => handleSavePreset('jazzPresetA')}
-            >Save Preset A</button>
-            <button
-              type="button"
-              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
-              onClick={() => handleLoadPreset('jazzPresetA')}
-            >Load Preset A</button>
-            <button
-              type="button"
-              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffe18a] hover:bg-[hsl(30,100%,92%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
-              onClick={() => handleSavePreset('jazzPresetB')}
-            >Save Preset B</button>
-            <button
-              type="button"
-              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
-              onClick={() => handleLoadPreset('jazzPresetB')}
-            >Load Preset B</button>
-            <button
-              type="button"
-              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffe18a] hover:bg-[hsl(30,100%,92%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
-              onClick={() => handleSavePreset('jazzPresetC')}
-            >Save Preset C</button>
-            <button
-              type="button"
-              className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
-              onClick={() => handleLoadPreset('jazzPresetC')}
-            >Load Preset C</button>
+            {(['A', 'B', 'C'] as const).map(slot => (
+              <Fragment key={slot}>
+                <button
+                  type="button"
+                  className="border-2 px-2 py-1 font-normal text-lg bg-[#ffe18a] hover:bg-[hsl(30,100%,92%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+                  onClick={() => handleSavePreset(`jazzPreset${slot}`)}
+                >Save Preset {slot}</button>
+                <button
+                  type="button"
+                  className="border-2 px-2 py-1 font-normal text-lg bg-[#ffd53a] hover:bg-[hsl(30,100%,96%)] shadow-[2px_2px_var(--color-stone-900)] active:translate-1 active:shadow-none transition-all"
+                  onClick={() => handleLoadPreset(`jazzPreset${slot}`)}
+                >Load Preset {slot}</button>
+              </Fragment>
+            ))}
           </div>
         </div>
       </section>
